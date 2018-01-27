@@ -17,8 +17,8 @@ class UStream: public UConvert {
 public:
 	struct Buffer_Typedef {
 		uint8_t* data;
-		volatile uint16_t front;
-		volatile uint16_t tail;
+		volatile uint16_t start;
+		volatile uint16_t end;
 		uint16_t size;
 		volatile bool busy;
 	};
@@ -26,14 +26,14 @@ public:
 	UStream(uint16_t rxBufSize, uint16_t txBufSize) {
 		_RxBuf.size = rxBufSize;
 		_RxBuf.data = new uint8_t[_RxBuf.size];
-		_RxBuf.front = 0;
-		_RxBuf.tail = 0;
+		_RxBuf.start = 0;
+		_RxBuf.end = 0;
 		_RxBuf.busy = false;
 
 		_TxBuf.size = txBufSize;
 		_TxBuf.data = new uint8_t[_TxBuf.size];
-		_TxBuf.front = 0;
-		_TxBuf.tail = 0;
+		_TxBuf.start = 0;
+		_TxBuf.end = 0;
 		_TxBuf.busy = false;
 	}
 
@@ -97,12 +97,12 @@ public:
 	virtual Status_Typedef NextFloat(void* flo, uint8_t ignore = 0);
 
 	virtual uint16_t Available();
-	virtual bool IsEmpty(Buffer_Typedef* steam);
+	virtual bool IsEmpty(Buffer_Typedef &buffer);
 	void Clear();
 protected:
 	Buffer_Typedef _RxBuf, _TxBuf;
-	Status_Typedef SpInc(Buffer_Typedef* steam);
-	Status_Typedef SpDec(Buffer_Typedef* steam);
+	Status_Typedef SpInc(Buffer_Typedef &buffer);
+	Status_Typedef SpDec(Buffer_Typedef &buffer);
 private:
 	uint16_t getLen(uint8_t *str);
 };

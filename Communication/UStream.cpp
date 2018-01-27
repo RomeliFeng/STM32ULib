@@ -14,9 +14,9 @@
  */
 uint16_t UStream::Available() {
 	return uint16_t(
-			_RxBuf.front <= _RxBuf.tail ?
-			_RxBuf.tail - _RxBuf.front :
-					_RxBuf.size - _RxBuf.front + _RxBuf.tail);
+			_RxBuf.start <= _RxBuf.end ?
+					_RxBuf.end - _RxBuf.start :
+					_RxBuf.size - _RxBuf.start + _RxBuf.end);
 }
 
 /*
@@ -94,8 +94,8 @@ Status_Typedef UStream::Read(uint8_t* data, uint16_t len) {
  */
 Status_Typedef UStream::Read(uint8_t* data) {
 	//读取一个数
-	*data = _RxBuf.data[_RxBuf.front];
-	return SpInc(&_RxBuf);
+	*data = _RxBuf.data[_RxBuf.start];
+	return SpInc(_RxBuf);
 }
 
 /*
@@ -106,7 +106,7 @@ Status_Typedef UStream::Read(uint8_t* data) {
  */
 Status_Typedef UStream::Peek(uint8_t* data) {
 	//偷看一个数
-	*data = _RxBuf.data[_RxBuf.front];
+	*data = _RxBuf.data[_RxBuf.start];
 	return Status_Ok;
 }
 
@@ -141,7 +141,7 @@ Status_Typedef UStream::NextInt(void *num, uint8_t ignore) {
 	bool firstChar = true;
 	bool isNeg = false;
 	uint8_t c = 0;
-	uint16_t sp = _RxBuf.front;
+	uint16_t sp = _RxBuf.start;
 	int32_t n = 0;
 
 	while (Available() > 0) {
@@ -151,24 +151,24 @@ Status_Typedef UStream::NextInt(void *num, uint8_t ignore) {
 				if (firstChar) {
 					//检测到一个'-'
 					isNeg = true;
-					SpInc(&_RxBuf);
+					SpInc(_RxBuf);
 					continue;
 				} else {
 					//'-'不是第一个数
 					break;
 				}
 			} else if ((c == ignore) && (ignore != 0)) {
-				SpInc(&_RxBuf);
+				SpInc(_RxBuf);
 				continue;
 			}
 			n = n * 10 + c - '0';
 			firstChar = false;
-			SpInc(&_RxBuf);
+			SpInc(_RxBuf);
 		} else {
 			break;
 		}
 	}
-	if ((sp != _RxBuf.front) && (c != '-') && (c != ignore)) {
+	if ((sp != _RxBuf.start) && (c != '-') && (c != ignore)) {
 		//有读取到数
 		if (isNeg) {
 			n = -n;
@@ -195,7 +195,7 @@ Status_Typedef UStream::NextFloat(void* flo, uint8_t ignore) {
 	bool isNeg = false;
 	bool isFra = false;
 	bool firstChar = true;
-	uint16_t sp = _RxBuf.front;
+	uint16_t sp = _RxBuf.start;
 	uint8_t c = 0;
 
 	while (Available() > 0) {
@@ -204,21 +204,21 @@ Status_Typedef UStream::NextFloat(void* flo, uint8_t ignore) {
 				if (firstChar) {
 					//检测到一个'-'
 					isNeg = true;
-					SpInc(&_RxBuf);
+					SpInc(_RxBuf);
 					continue;
 				} else {
 					//'-'不是第一个数
 					break;
 				}
 			} else if ((c == ignore) && (ignore != 0)) {
-				SpInc(&_RxBuf);
+				SpInc(_RxBuf);
 				continue;
 			} else if (c == '.') {
 				if (isFra) { //不应出现两个'-'
 					break;
 				} else {
 					if (!firstChar) {
-						SpInc(&_RxBuf);
+						SpInc(_RxBuf);
 						isFra = true;
 						continue;
 					} else {
@@ -231,14 +231,14 @@ Status_Typedef UStream::NextFloat(void* flo, uint8_t ignore) {
 				frac *= 0.1;
 			}
 			f = f * 10 + c - '0';
-			SpInc(&_RxBuf);
+			SpInc(_RxBuf);
 			firstChar = false;
 		} else {
 			break;
 		}
 	}
 
-	if ((sp != _RxBuf.front) && (c != '-') && (c != ignore)) {
+	if ((sp != _RxBuf.start) && (c != '-') && (c != ignore)) {
 		//有读取到数
 		f = isNeg ? -f : f;
 		f = isFra ? f * frac : f;
@@ -257,9 +257,9 @@ Status_Typedef UStream::NextFloat(void* flo, uint8_t ignore) {
  * param buffer 栈地址
  * return bool
  */
-inline bool UStream::IsEmpty(Buffer_Typedef* buffer) {
+inline bool UStream::IsEmpty(Buffer_Typedef &buffer) {
 	//判断缓冲区是否为空
-	return buffer->front == buffer->tail;
+	return buffer.start == buffer.end;
 }
 
 /*
@@ -268,13 +268,13 @@ inline bool UStream::IsEmpty(Buffer_Typedef* buffer) {
  * param1 buffer 流指针
  * return Status_Typedef
  */
-Status_Typedef UStream::SpInc(Buffer_Typedef *buffer) {
+inline Status_Typedef UStream::SpInc(Buffer_Typedef &buffer) {
 	if (IsEmpty(buffer)) {
 		//缓冲区为空
 		return Status_Error;
 	} else {
 		//缓冲区指针+1
-		buffer->front = uint16_t((buffer->front + 1) % buffer->size);
+		buffer.start = uint16_t((buffer.start + 1) % buffer.size);
 		return Status_Ok;
 	}
 }
@@ -285,9 +285,8 @@ Status_Typedef UStream::SpInc(Buffer_Typedef *buffer) {
  * param1 buffer 流指针
  * return Status_Typedef
  */
-Status_Typedef UStream::SpDec(Buffer_Typedef* buffer) {
-	buffer->front = uint16_t(
-			buffer->front == 0 ? buffer->size : buffer->front - 1);
+inline Status_Typedef UStream::SpDec(Buffer_Typedef &buffer) {
+	buffer.start = uint16_t(buffer.start == 0 ? buffer.size : buffer.start - 1);
 	return Status_Ok;
 }
 
@@ -297,7 +296,7 @@ Status_Typedef UStream::SpDec(Buffer_Typedef* buffer) {
  * return void
  */
 void UStream::Clear() {
-	_RxBuf.front = _RxBuf.tail;
+	_RxBuf.start = _RxBuf.end;
 }
 
 /*
