@@ -1,5 +1,5 @@
 /*
- * USteam.h
+ * UStream.h
  *
  *  Created on: 2017年9月29日
  *      Author: Romeli
@@ -13,17 +13,17 @@
 #include <UDebug.h>
 #include <UMisc.h>
 
-typedef struct _DataSteam_Typedef {
-	uint8_t* data;
-	volatile uint16_t front;
-	volatile uint16_t tail;
-	uint16_t size;
-	volatile bool busy;
-} DataSteam_Typedef;
-
-class USteam: public UConvert {
+class UStream: public UConvert {
 public:
-	USteam(uint16_t rxBufSize, uint16_t txBufSize) {
+	struct Buffer_Typedef {
+		uint8_t* data;
+		volatile uint16_t front;
+		volatile uint16_t tail;
+		uint16_t size;
+		volatile bool busy;
+	};
+
+	UStream(uint16_t rxBufSize, uint16_t txBufSize) {
 		_RxBuf.size = rxBufSize;
 		_RxBuf.data = new uint8_t[_RxBuf.size];
 		_RxBuf.front = 0;
@@ -37,7 +37,7 @@ public:
 		_TxBuf.busy = false;
 	}
 
-	virtual ~USteam() {
+	virtual ~UStream() {
 		delete _RxBuf.data;
 		delete _TxBuf.data;
 	}
@@ -97,12 +97,12 @@ public:
 	virtual Status_Typedef NextFloat(void* flo, uint8_t ignore = 0);
 
 	virtual uint16_t Available();
-	virtual bool IsEmpty(DataSteam_Typedef* steam);
+	virtual bool IsEmpty(Buffer_Typedef* steam);
 	void Clear();
 protected:
-	DataSteam_Typedef _RxBuf, _TxBuf;
-	Status_Typedef SpInc(DataSteam_Typedef* steam);
-	Status_Typedef SpDec(DataSteam_Typedef* steam);
+	Buffer_Typedef _RxBuf, _TxBuf;
+	Status_Typedef SpInc(Buffer_Typedef* steam);
+	Status_Typedef SpDec(Buffer_Typedef* steam);
 private:
 	uint16_t getLen(uint8_t *str);
 };

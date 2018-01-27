@@ -1,18 +1,18 @@
 /*
- * USteam.cpp
+ * UStream.cpp
  *
  *  Created on: 2017年9月29日
  *      Author: Romeli
  */
 
-#include <Communication/USteam.h>
+#include <Communication/UStream.h>
 
 /*
  * author Romeli
  * explain 获取缓冲区内的缓冲字符数量
  * return uint16_t
  */
-uint16_t USteam::Available() {
+uint16_t UStream::Available() {
 	return uint16_t(
 			_RxBuf.front <= _RxBuf.tail ?
 			_RxBuf.tail - _RxBuf.front :
@@ -25,7 +25,7 @@ uint16_t USteam::Available() {
  * param data 数据
  * return Status_Typedef
  */
-inline Status_Typedef USteam::Write(uint8_t data) {
+inline Status_Typedef UStream::Write(uint8_t data) {
 	return Write(&data, 1);
 }
 
@@ -35,7 +35,7 @@ inline Status_Typedef USteam::Write(uint8_t data) {
  * param 字符串地址
  * return Status_Typedef
  */
-Status_Typedef USteam::Print(uint8_t* str) {
+Status_Typedef UStream::Print(uint8_t* str) {
 	uint16_t len = getLen((uint8_t *) str);
 	if (len != 0) {
 		return Write((uint8_t *) str, len);
@@ -52,7 +52,7 @@ Status_Typedef USteam::Print(uint8_t* str) {
  * param2 base 进制
  * return Status_Typedef
  */
-Status_Typedef USteam::Print(int32_t num, uint8_t base) {
+Status_Typedef UStream::Print(int32_t num, uint8_t base) {
 	uint8_t str[32];
 	uint16_t len = byNumber(num, base, str);
 	return Write(str, len);
@@ -65,7 +65,7 @@ Status_Typedef USteam::Print(int32_t num, uint8_t base) {
  * param2 ndigit 小数位数
  * return Status_Typedef
  */
-Status_Typedef USteam::Print(double flo, uint8_t ndigit) {
+Status_Typedef UStream::Print(double flo, uint8_t ndigit) {
 	uint8_t str[32];
 	uint16_t len = byFloat(flo, ndigit, str);
 	return Write(str, len);
@@ -78,7 +78,7 @@ Status_Typedef USteam::Print(double flo, uint8_t ndigit) {
  * param2 len 读取数据长度
  * return Status_Typedef
  */
-Status_Typedef USteam::Read(uint8_t* data, uint16_t len) {
+Status_Typedef UStream::Read(uint8_t* data, uint16_t len) {
 	//循环读取
 	for (uint8_t i = 0; i < len; ++i) {
 		Read(data + i);
@@ -92,7 +92,7 @@ Status_Typedef USteam::Read(uint8_t* data, uint16_t len) {
  * param1 data 读回数据存放位置
  * return Status_Typedef
  */
-Status_Typedef USteam::Read(uint8_t* data) {
+Status_Typedef UStream::Read(uint8_t* data) {
 	//读取一个数
 	*data = _RxBuf.data[_RxBuf.front];
 	return SpInc(&_RxBuf);
@@ -104,7 +104,7 @@ Status_Typedef USteam::Read(uint8_t* data) {
  * param data 读回数据存放位置
  * return Status_Typedef
  */
-Status_Typedef USteam::Peek(uint8_t* data) {
+Status_Typedef UStream::Peek(uint8_t* data) {
 	//偷看一个数
 	*data = _RxBuf.data[_RxBuf.front];
 	return Status_Ok;
@@ -117,7 +117,7 @@ Status_Typedef USteam::Peek(uint8_t* data) {
  * param2 ignore 忽略的字符
  * return Status_Typedef
  */
-Status_Typedef USteam::PeekNextDigital(uint8_t *data, uint8_t ignore,
+Status_Typedef UStream::PeekNextDigital(uint8_t *data, uint8_t ignore,
 		bool detectDecimal) {
 	//偷看一个数
 	Peek(data);
@@ -137,7 +137,7 @@ Status_Typedef USteam::PeekNextDigital(uint8_t *data, uint8_t ignore,
  * param2 ignore 忽略的字符
  * return Status_Typedef
  */
-Status_Typedef USteam::NextInt(void *num, uint8_t ignore) {
+Status_Typedef UStream::NextInt(void *num, uint8_t ignore) {
 	bool firstChar = true;
 	bool isNeg = false;
 	uint8_t c = 0;
@@ -189,7 +189,7 @@ Status_Typedef USteam::NextInt(void *num, uint8_t ignore) {
  * param2 ignore 忽略的字符
  * return Status_Typedef
  */
-Status_Typedef USteam::NextFloat(void* flo, uint8_t ignore) {
+Status_Typedef UStream::NextFloat(void* flo, uint8_t ignore) {
 	double f = 0;
 	double frac = 1.0;
 	bool isNeg = false;
@@ -254,27 +254,27 @@ Status_Typedef USteam::NextFloat(void* flo, uint8_t ignore) {
 /*
  * author Romeli
  * explain 检查站内是否有数据
- * param steam 栈地址
+ * param buffer 栈地址
  * return bool
  */
-inline bool USteam::IsEmpty(DataSteam_Typedef* steam) {
+inline bool UStream::IsEmpty(Buffer_Typedef* buffer) {
 	//判断缓冲区是否为空
-	return steam->front == steam->tail;
+	return buffer->front == buffer->tail;
 }
 
 /*
  * author Romeli
  * explain 向下移动流指针
- * param1 steam 流指针
+ * param1 buffer 流指针
  * return Status_Typedef
  */
-Status_Typedef USteam::SpInc(DataSteam_Typedef *steam) {
-	if (IsEmpty(steam)) {
+Status_Typedef UStream::SpInc(Buffer_Typedef *buffer) {
+	if (IsEmpty(buffer)) {
 		//缓冲区为空
 		return Status_Error;
 	} else {
 		//缓冲区指针+1
-		steam->front = uint16_t((steam->front + 1) % steam->size);
+		buffer->front = uint16_t((buffer->front + 1) % buffer->size);
 		return Status_Ok;
 	}
 }
@@ -282,11 +282,12 @@ Status_Typedef USteam::SpInc(DataSteam_Typedef *steam) {
 /*
  * author Romeli
  * explain 向上移动流指针
- * param1 steam 流指针
+ * param1 buffer 流指针
  * return Status_Typedef
  */
-Status_Typedef USteam::SpDec(DataSteam_Typedef* steam) {
-	steam->front = uint16_t(steam->front == 0 ? steam->size : steam->front - 1);
+Status_Typedef UStream::SpDec(Buffer_Typedef* buffer) {
+	buffer->front = uint16_t(
+			buffer->front == 0 ? buffer->size : buffer->front - 1);
 	return Status_Ok;
 }
 
@@ -295,7 +296,7 @@ Status_Typedef USteam::SpDec(DataSteam_Typedef* steam) {
  * explain 清空读取流内数据
  * return void
  */
-void USteam::Clear() {
+void UStream::Clear() {
 	_RxBuf.front = _RxBuf.tail;
 }
 
@@ -305,7 +306,7 @@ void USteam::Clear() {
  * param str 字符串地址
  * return uint16_t
  */
-uint16_t USteam::getLen(uint8_t* str) {
+uint16_t UStream::getLen(uint8_t* str) {
 	uint16_t len = 0;
 	for (len = 0; *(str + len) != '\0'; ++len)
 		;
