@@ -13,11 +13,9 @@
 
 class UTick {
 public:
-	static void Init(uint16_t us);
+	static void Init();
 	static void uWait(uint64_t us);
-	static inline void mWait(uint64_t ms) {
-		uWait(ms * 1000);
-	}
+	static void mWait(uint64_t ms);
 	static inline void Wait(uint64_t s) {
 		mWait(s * 1000);
 	}
@@ -32,7 +30,7 @@ private:
 	static bool _InitFlag;
 	static volatile uint_fast64_t _Now;
 	static uint_fast64_t _Last;
-	static uint16_t _Interval;
+	static uint32_t _Interval;
 };
 
 #endif /* UTICK_H_ */
