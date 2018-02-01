@@ -26,7 +26,7 @@ UEventLoop::~UEventLoop() {
  */
 void UEventLoop::TryDo() {
 	EventList::iterator iter = _List.begin();
-	do {
+	while (iter != _List.end()) {
 		Unit_Typedef& unit = *iter;
 		uint64_t now = UTick::Millis();
 		if (now - unit.LastCall >= unit.Interval) {
@@ -39,7 +39,7 @@ void UEventLoop::TryDo() {
 		} else {
 			++iter;
 		}
-	} while (iter != _List.end());
+	};
 }
 
 /*
