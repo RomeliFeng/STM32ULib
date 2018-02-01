@@ -35,7 +35,7 @@ inline void TIM_Disable_IT_Update(TIM_TypeDef* TIMx) {
 	TIMx->DIER &= (uint16_t) ~TIM_IT_Update;
 }
 
-struct Bit_Typedef {
+struct Bit8_Typedef {
 	uint8_t bit0 :1;
 	uint8_t bit1 :1;
 	uint8_t bit2 :1;
@@ -46,9 +46,84 @@ struct Bit_Typedef {
 	uint8_t bit7 :1;
 };
 
+struct Bit16_Typedef {
+	uint8_t bit0 :1;
+	uint8_t bit1 :1;
+	uint8_t bit2 :1;
+	uint8_t bit3 :1;
+	uint8_t bit4 :1;
+	uint8_t bit5 :1;
+	uint8_t bit6 :1;
+	uint8_t bit7 :1;
+	uint8_t bit8 :1;
+	uint8_t bit9 :1;
+	uint8_t bit10 :1;
+	uint8_t bit11 :1;
+	uint8_t bit12 :1;
+	uint8_t bit13 :1;
+	uint8_t bit14 :1;
+	uint8_t bit15 :1;
+};
+
+struct Bit32_Typedef {
+	uint8_t bit0 :1;
+	uint8_t bit1 :1;
+	uint8_t bit2 :1;
+	uint8_t bit3 :1;
+	uint8_t bit4 :1;
+	uint8_t bit5 :1;
+	uint8_t bit6 :1;
+	uint8_t bit7 :1;
+	uint8_t bit8 :1;
+	uint8_t bit9 :1;
+	uint8_t bit10 :1;
+	uint8_t bit11 :1;
+	uint8_t bit12 :1;
+	uint8_t bit13 :1;
+	uint8_t bit14 :1;
+	uint8_t bit15 :1;
+	uint8_t bit16 :1;
+	uint8_t bit17 :1;
+	uint8_t bit18 :1;
+	uint8_t bit19 :1;
+	uint8_t bit20 :1;
+	uint8_t bit21 :1;
+	uint8_t bit22 :1;
+	uint8_t bit23 :1;
+	uint8_t bit24 :1;
+	uint8_t bit25 :1;
+	uint8_t bit26 :1;
+	uint8_t bit27 :1;
+	uint8_t bit28 :1;
+	uint8_t bit29 :1;
+	uint8_t bit30 :1;
+	uint8_t bit31 :1;
+};
+
 union BytetoBit_Typedef {
+	bool at(uint8_t pos) {
+		return (((*(uint8_t *) this) & (1 << pos)) != 0);
+	}
 	uint8_t byte;
-	Bit_Typedef bit;
+	Bit8_Typedef bit;
+};
+
+union WordtoBit_Typedef {
+	bool at(uint8_t pos) {
+		return (((*(uint16_t *) this) & (1 << pos)) != 0);
+	}
+	uint16_t word;
+	uint8_t byte[2];
+	Bit16_Typedef bit;
+};
+
+union TwoWordtoBit_Typedef {
+	bool at(uint8_t pos) {
+		return (((*(uint32_t *) this) & (1 << pos)) != 0);
+	}
+	uint32_t twoWord;
+	uint16_t word[2];
+	Bit32_Typedef bit;
 };
 
 union WordtoByte_Typedef {
@@ -63,12 +138,12 @@ union WordtoByteSigned_Typedef {
 
 union TwoWordtoByte_Typedef {
 	uint8_t byte[4];
-	uint32_t twoword;
+	uint32_t twoWord;
 };
 
 union TwoWordtoByteSigned_Typedef {
 	uint8_t byte[4];
-	int32_t twoword;
+	int32_t twoWord;
 };
 
 union DoubletoByte_Typedef {
