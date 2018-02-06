@@ -17,9 +17,9 @@ class UStream: public UConvert {
 public:
 	struct Buffer_Typedef {
 		uint8_t* data;
+		uint16_t size;
 		volatile uint16_t start;
 		volatile uint16_t end;
-		uint16_t size;
 		volatile bool busy;
 	};
 

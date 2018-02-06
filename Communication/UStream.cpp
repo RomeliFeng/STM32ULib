@@ -286,7 +286,8 @@ inline Status_Typedef UStream::SpInc(Buffer_Typedef &buffer) {
  * return Status_Typedef
  */
 inline Status_Typedef UStream::SpDec(Buffer_Typedef &buffer) {
-	buffer.start = uint16_t(buffer.start == 0 ? buffer.size : buffer.start - 1);
+	buffer.start = uint16_t(
+			buffer.start == 0 ? buffer.size : buffer.start - 1);
 	return Status_Ok;
 }
 
