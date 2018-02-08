@@ -18,10 +18,10 @@ public:
 	ULimit(BitAction bitAction);
 	virtual ~ULimit();
 
-	void RefreshData();
+	virtual void RefreshData() = 0;
 	bool Check(uint8_t sensorNo, bool reFresh = false);
-	void WaittingFor(uint8_t sensorNo);
-	void WaittingWhile(uint8_t sensorNo);
+	bool WaittingFor(uint8_t sensorNo, uint64_t timeOut = 0);
+	bool WaittingWhile(uint8_t sensorNo, uint64_t timeOut = 0);
 	void SetActive(BitAction bitAction);
 private:
 	virtual void GPIOInit() = 0;
