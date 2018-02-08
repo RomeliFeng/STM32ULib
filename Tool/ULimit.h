@@ -13,10 +13,12 @@
 
 class ULimit {
 public:
-	TwoWordtoBit_Typedef Data;
+	volatile TwoWordtoBit_Typedef Data;
 
 	ULimit(BitAction bitAction);
 	virtual ~ULimit();
+
+	void Init();
 
 	virtual void RefreshData() = 0;
 	bool Check(uint8_t sensorNo, bool reFresh = false);
