@@ -101,26 +101,17 @@ struct Bit32_Typedef {
 };
 
 union BytetoBit_Typedef {
-	bool at(uint8_t pos) {
-		return (((*(uint8_t *) this) & (1 << pos)) != 0);
-	}
 	uint8_t byte;
 	Bit8_Typedef bit;
 };
 
 union WordtoBit_Typedef {
-	bool at(uint8_t pos) {
-		return (((*(uint16_t *) this) & (1 << pos)) != 0);
-	}
 	uint16_t word;
 	uint8_t byte[2];
 	Bit16_Typedef bit;
 };
 
 union TwoWordtoBit_Typedef {
-	bool at(uint8_t pos) {
-		return (((*(uint32_t *) this) & (1 << pos)) != 0);
-	}
 	uint32_t twoWord;
 	uint16_t word[2];
 	Bit32_Typedef bit;
