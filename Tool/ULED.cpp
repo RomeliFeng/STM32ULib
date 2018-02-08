@@ -25,44 +25,44 @@ void ULED::Init(Color color) {
 void ULED::Turn(Color color) {
 	switch (color) {
 	case Color_None:
-		SetRedPin(false);
-		SetGreenPin(false);
-		SetBluePin(false);
+		SetRedPin(true);
+		SetGreenPin(true);
+		SetBluePin(true);
 		break;
 	case Color_Red:
-		SetRedPin(true);
-		SetGreenPin(false);
-		SetBluePin(false);
+		SetRedPin(false);
+		SetGreenPin(true);
+		SetBluePin(true);
 		break;
 	case Color_Green:
-		SetRedPin(false);
-		SetGreenPin(true);
-		SetBluePin(false);
+		SetRedPin(true);
+		SetGreenPin(false);
+		SetBluePin(true);
 		break;
 	case Color_Blue:
-		SetRedPin(false);
-		SetGreenPin(false);
-		SetBluePin(true);
-		break;
-	case Color_Yellow:
 		SetRedPin(true);
 		SetGreenPin(true);
 		SetBluePin(false);
 		break;
-	case Color_Cyan:
+	case Color_Yellow:
 		SetRedPin(false);
-		SetGreenPin(true);
-		SetBluePin(true);
-		break;
-	case Color_Purple:
-		SetRedPin(true);
 		SetGreenPin(false);
 		SetBluePin(true);
 		break;
-	case Color_White:
+	case Color_Cyan:
 		SetRedPin(true);
+		SetGreenPin(false);
+		SetBluePin(false);
+		break;
+	case Color_Purple:
+		SetRedPin(false);
 		SetGreenPin(true);
-		SetBluePin(true);
+		SetBluePin(false);
+		break;
+	case Color_White:
+		SetRedPin(false);
+		SetGreenPin(false);
+		SetBluePin(false);
 		break;
 	default:
 		break;

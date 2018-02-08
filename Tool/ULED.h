@@ -8,6 +8,8 @@
 #ifndef TOOL_ULED_H_
 #define TOOL_ULED_H_
 
+#include <cmsis_device.h>
+
 class ULED {
 public:
 	enum Color {
