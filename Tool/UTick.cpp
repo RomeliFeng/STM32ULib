@@ -20,7 +20,7 @@ uint32_t UTick::_Interval = 0;
  */
 void UTick::Init() {
 	_Interval = SystemCoreClock / 1000000;
-	SysTick_Config(SystemCoreClock / 1000); //Set SysTick timer=us
+	SysTick_Config(SystemCoreClock / 1000 - 1); //Set SysTick timer=us
 	NVIC_SetPriority(SysTick_IRQn, 0);					//Set SysTick interrupt
 	_InitFlag = true;
 }
