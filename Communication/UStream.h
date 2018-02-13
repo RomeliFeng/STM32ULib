@@ -10,8 +10,8 @@
 
 #include <cmsis_device.h>
 #include <Tool/UConvert.h>
-#include <UDebug.h>
-#include <UMisc.h>
+#include <Misc/UDebug.h>
+#include <Misc/UMisc.h>
 
 class UStream: public UConvert {
 public:

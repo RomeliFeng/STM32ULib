@@ -9,7 +9,7 @@
 #define UTICK_H_
 
 #include <cmsis_device.h>
-#include <UDebug.h>
+#include <Misc/UDebug.h>
 
 class UTick {
 public:

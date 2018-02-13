@@ -5,8 +5,8 @@
  *      Author: Romeli
  */
 
-#include <Tool/UEventLoop.h>
-#include <UDebug.h>
+#include <Event/UEventLoop.h>
+#include <Misc/UDebug.h>
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Waggregate-return"
