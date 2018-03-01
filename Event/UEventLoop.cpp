@@ -63,14 +63,15 @@ void UEventLoop::Insert(voidFun event, uint32_t interval) {
  * return void
  */
 void UEventLoop::Remove(voidFun event) {
-	EventList::iterator iter = _List.begin();
-	do {
-		if ((*iter).Event == event) {
-			iter = _List.erase(iter);
-		} else {
-			++iter;
-		}
-	} while (iter != _List.end());
+	//FixMe 暂时没法解决这个问题
+//	EventList::iterator iter = _List.begin();
+//	do {
+//		if ((*iter).Event == event) {
+//			iter = _List.erase(iter);
+//		} else {
+//			++iter;
+//		}
+//	} while (iter != _List.end());
 }
 
 /*
