@@ -28,6 +28,7 @@ public:
 
 	void Init(Color color = Color_None);
 	void Turn(Color color);
+	void Set(Color color, bool state);
 protected:
 	virtual void GPIOInit() = 0;
 

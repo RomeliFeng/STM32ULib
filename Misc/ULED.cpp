@@ -8,13 +8,9 @@
 #include <Misc/ULED.h>
 
 ULED::ULED() {
-	// TODO Auto-generated constructor stub
-
 }
 
-
 ULED::~ULED() {
-
 }
 
 void ULED::Init(Color color) {
@@ -63,6 +59,39 @@ void ULED::Turn(Color color) {
 		SetRedPin(false);
 		SetGreenPin(false);
 		SetBluePin(false);
+		break;
+	default:
+		break;
+	}
+}
+
+void ULED::Set(Color color, bool state) {
+	switch (color) {
+	case Color_Red:
+		SetRedPin(!state);
+		break;
+	case Color_Green:
+		SetGreenPin(!state);
+		break;
+	case Color_Blue:
+		SetBluePin(!state);
+		break;
+	case Color_Yellow:
+		SetRedPin(!state);
+		SetGreenPin(!state);
+		break;
+	case Color_Cyan:
+		SetGreenPin(!state);
+		SetBluePin(!state);
+		break;
+	case Color_Purple:
+		SetRedPin(!state);
+		SetBluePin(!state);
+		break;
+	case Color_White:
+		SetRedPin(!state);
+		SetGreenPin(!state);
+		SetBluePin(!state);
 		break;
 	default:
 		break;
