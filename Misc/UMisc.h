@@ -9,6 +9,12 @@
 #define UMISC_H_
 
 #include <cmsis_device.h>
+#include <Misc/UMisc.h>
+#include <functional>
+
+//#define voidFun
+//typedef void (*voidFun)();
+typedef std::function<void(void)> voidFun;
 
 //these function are work for high speed setting
 inline void TIM_Enable(TIM_TypeDef* TIMx) {
@@ -111,13 +117,10 @@ union WordtoBit_Typedef {
 	Bit16_Typedef bit;
 };
 
-union TwoWordtoBit_Typedef {
-	uint32_t twoWord;
-	uint16_t word[2];
-	Bit32_Typedef bit;
-};
-
 union WordtoByte_Typedef {
+	WordtoByte_Typedef(uint16_t& w) {
+		word = w;
+	}
 	uint8_t byte[2];
 	uint16_t word;
 };
@@ -129,12 +132,21 @@ union WordtoByteSigned_Typedef {
 
 union TwoWordtoByte_Typedef {
 	uint8_t byte[4];
+	uint16_t word[2];
 	uint32_t twoWord;
 };
 
 union TwoWordtoByteSigned_Typedef {
 	uint8_t byte[4];
+	int16_t word[2];
 	int32_t twoWord;
+};
+
+union TwoWordtoBit_Typedef {
+	uint32_t twoWord;
+	uint16_t word[2];
+	uint8_t byte[4];
+	Bit32_Typedef bit;
 };
 
 union DoubletoByte_Typedef {
@@ -151,7 +163,5 @@ struct UIT_Typedef {
 	uint8_t PreemptionPriority;
 	uint8_t SubPriority;
 };
-
-typedef void (*voidFun)(void);
 
 #endif /* UMISC_H_ */
