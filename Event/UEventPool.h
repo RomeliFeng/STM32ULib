@@ -9,8 +9,8 @@
 #define UEVENTPOOL_H_
 
 #include <cmsis_device.h>
-#include <queue>
 #include <Misc/UMisc.h>
+#include <queue>
 
 class UEventPool {
 public:
