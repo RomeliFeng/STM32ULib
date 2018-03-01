@@ -264,6 +264,24 @@ inline bool UStream::IsEmpty(Buffer_Typedef &buffer) {
 
 /*
  * author Romeli
+ * explain 查询当前发送流是否繁忙（应在派生类中重写）
+ * return bool
+ */
+bool UStream::IsBusy() {
+	return false;
+}
+
+/*
+ * author Romeli
+ * explain 清空读取流内数据
+ * return void
+ */
+void UStream::Clear() {
+	_RxBuf.start = _RxBuf.end;
+}
+
+/*
+ * author Romeli
  * explain 向下移动流指针
  * param1 buffer 流指针
  * return Status_Typedef
@@ -289,15 +307,6 @@ inline Status_Typedef UStream::SpDec(Buffer_Typedef &buffer) {
 	buffer.start = uint16_t(
 			buffer.start == 0 ? buffer.size : buffer.start - 1);
 	return Status_Ok;
-}
-
-/*
- * author Romeli
- * explain 清空读取流内数据
- * return void
- */
-void UStream::Clear() {
-	_RxBuf.start = _RxBuf.end;
 }
 
 /*

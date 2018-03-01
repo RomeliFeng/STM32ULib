@@ -38,8 +38,8 @@ public:
 	}
 
 	virtual ~UStream() {
-		delete _RxBuf.data;
-		delete _TxBuf.data;
+		delete[] _RxBuf.data;
+		delete[]  _TxBuf.data;
 	}
 
 	//接口
@@ -98,6 +98,7 @@ public:
 
 	virtual uint16_t Available();
 	virtual bool IsEmpty(Buffer_Typedef &buffer);
+	virtual bool IsBusy();
 	void Clear();
 protected:
 	Buffer_Typedef _RxBuf, _TxBuf;
