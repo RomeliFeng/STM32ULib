@@ -40,7 +40,7 @@ bool ULimit::Check(uint8_t sensorNo, bool reFresh) {
 	if (reFresh) {
 		RefreshData();
 	}
-	if ((Data.twoWord & (uint32_t(1) << sensorNo)) == _BitAction) {
+	if ((Data.twoWord & (uint32_t(1) << sensorNo)) != 0) {
 		return true;
 	} else {
 		return false;

@@ -25,9 +25,10 @@ public:
 	bool WaittingFor(uint8_t sensorNo, uint64_t timeOut = 0);
 	bool WaittingWhile(uint8_t sensorNo, uint64_t timeOut = 0);
 	void SetActive(BitAction bitAction);
+protected:
+	BitAction _BitAction;
 private:
 	virtual void GPIOInit() = 0;
-	BitAction _BitAction;
 };
 
 #endif /* TOOL_ULIMIT_H_ */
