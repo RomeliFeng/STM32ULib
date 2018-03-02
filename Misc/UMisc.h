@@ -121,6 +121,9 @@ union WordtoByte_Typedef {
 	WordtoByte_Typedef(uint16_t& w) {
 		word = w;
 	}
+	WordtoByte_Typedef(){
+
+	}
 	uint8_t byte[2];
 	uint16_t word;
 };
