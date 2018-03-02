@@ -37,6 +37,10 @@ public:
 	}
 
 	static uint8_t getLen(uint32_t num, uint8_t base);
+	static uint8_t getLen(uint8_t* str);
+	static inline uint8_t getLen(const char* str){
+		return getLen((uint8_t*)str);
+	}
 	static uint32_t pow10(uint8_t power);
 	static uint8_t strCat(uint8_t* str_to, uint8_t str_to_len,
 			uint8_t* str_from, uint8_t str_from_len);

@@ -33,6 +33,7 @@ uint8_t UConvert::byNumber(int32_t num, uint8_t base, uint8_t* str) {
 		num /= base;
 		*--str = c < 10 ? (uint8_t) (c + '0') : (uint8_t) (c + 'A' - 10);
 	} while (num);
+	str[len] = '\0';
 	return len;
 }
 
@@ -81,6 +82,7 @@ uint8_t UConvert::byFloat(double flo, uint8_t ndigit, uint8_t* str) {
 			str[len++] = (uint8_t) (int_part + 0x30);
 		}
 	}
+	str[len] = '\0';
 	return len;
 }
 
@@ -100,6 +102,20 @@ uint8_t UConvert::getLen(uint32_t num, uint8_t base) {
 		num /= base;
 	}
 	return i;
+}
+
+/*
+ * author Romeli
+ * explain 求字符串长度
+ * param 字符串
+ * return uint8_t
+ */
+uint8_t UConvert::getLen(uint8_t* str) {
+	uint8_t len = 0;
+	while (*(str + len) != '\0') {
+		++len;
+	}
+	return len;
 }
 
 /*
@@ -124,8 +140,7 @@ uint32_t UConvert::pow10(uint8_t power) {
  * param4 str_from_len 被拼接的字符串长度
  * return uint8_t
  */
-uint8_t UConvert::strCat(uint8_t* str_to, uint8_t str_to_len,
-		uint8_t* str_from,
+uint8_t UConvert::strCat(uint8_t* str_to, uint8_t str_to_len, uint8_t* str_from,
 		uint8_t str_from_len) {
 	uint8_t i;
 	for (i = 0; i < str_from_len; ++i) { //搬移数据
