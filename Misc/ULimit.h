@@ -13,12 +13,12 @@
 
 class ULimit {
 public:
-	volatile TwoWordtoBit_Typedef Data;
+	volatile BytetoBit_Typedef* Data;
 
-	ULimit(BitAction bitAction);
+	ULimit(uint8_t dataSize, BitAction bitAction);
 	virtual ~ULimit();
 
-	void Init();
+	virtual void Init() = 0;
 
 	virtual void RefreshData() = 0;
 	bool Check(uint8_t sensorNo, bool reFresh = false);
@@ -27,8 +27,7 @@ public:
 	void SetActive(BitAction bitAction);
 protected:
 	BitAction _BitAction;
-private:
-	virtual void GPIOInit() = 0;
+	uint8_t _DataSize;
 };
 
 #endif /* TOOL_ULIMIT_H_ */

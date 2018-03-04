@@ -8,17 +8,14 @@
 #include <Misc/ULimit.h>
 #include <Tool/UTick.h>
 
-ULimit::ULimit(BitAction bitAction) {
-	Data.twoWord = 0;
+ULimit::ULimit(uint8_t dataSize, BitAction bitAction) {
+	_DataSize = dataSize;
+	Data = new BytetoBit_Typedef[_DataSize];
 	_BitAction = bitAction;
 }
 
 ULimit::~ULimit() {
-}
-
-void ULimit::Init() {
-	GPIOInit();
-	RefreshData();
+	delete[] Data;
 }
 
 /*
@@ -40,7 +37,11 @@ bool ULimit::Check(uint8_t sensorNo, bool reFresh) {
 	if (reFresh) {
 		RefreshData();
 	}
-	if ((Data.twoWord & (uint32_t(1) << sensorNo)) != 0) {
+	//求第几个字节
+	uint8_t index = sensorNo >> 3;
+	//计算掩码
+	uint8_t mask = uint8_t(1) << (sensorNo % 8);
+	if ((Data[index].byte & mask) != 0) {
 		return true;
 	} else {
 		return false;
