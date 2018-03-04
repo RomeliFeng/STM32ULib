@@ -41,11 +41,12 @@ bool ULimit::Check(uint8_t sensorNo, bool reFresh) {
 	uint8_t index = sensorNo >> 3;
 	//计算掩码
 	uint8_t mask = uint8_t(1) << (sensorNo % 8);
-	if ((Data[index].byte & mask) != 0) {
-		return true;
-	} else {
-		return false;
+	if (index < _DataSize) {
+		if ((Data[index].byte & mask) != 0) {
+			return true;
+		}
 	}
+	return false;
 }
 
 /*
