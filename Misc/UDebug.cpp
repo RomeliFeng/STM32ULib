@@ -14,6 +14,7 @@
 void UDebug::Print(uint8_t* file, int line, const char* message) {
 //#ifdef DEBUG
 	printf("UDebug failed: file \"%s\", line %d, message \"%s\"\n",file, line, message);
+	SystemInit();
 	while (true)
 		;
 //#endif
