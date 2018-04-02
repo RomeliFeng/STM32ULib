@@ -10,7 +10,7 @@
 
 ULimit::ULimit(uint8_t limitNum, bool inverting) {
 	_dataSize = limitNum;
-	Data = new BytetoBit_Typedef[_dataSize];
+	Data = new BytetoBit_Typedef[_dataSize]();
 	_inverting = inverting;
 }
 
