@@ -11,7 +11,7 @@
 ULimit::ULimit(uint8_t limitNum, bool inverting) {
 	_dataSize = limitNum;
 	Data = new BytetoBit_Typedef[_dataSize]();
-	_inverting = inverting;
+	SetInverting(inverting);
 }
 
 ULimit::~ULimit() {
@@ -89,6 +89,6 @@ bool ULimit::WaittingWhile(uint8_t sensorNo, uint64_t timeOut) {
  * param bitAction 触发电平
  * return void
  */
-void SetInverting(bool inverting) {
+void ULimit::SetInverting(bool inverting) {
 	_inverting = inverting;
 }
