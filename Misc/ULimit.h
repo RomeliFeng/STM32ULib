@@ -15,7 +15,7 @@ class ULimit {
 public:
 	volatile BytetoBit_Typedef* Data;
 
-	ULimit(uint8_t dataSize, BitAction bitAction);
+	ULimit(uint8_t limitNum, bool inverting);
 	virtual ~ULimit();
 
 	virtual void Init() = 0;
@@ -24,10 +24,11 @@ public:
 	bool Check(uint8_t sensorNo, bool reFresh = false);
 	bool WaittingFor(uint8_t sensorNo, uint64_t timeOut = 0);
 	bool WaittingWhile(uint8_t sensorNo, uint64_t timeOut = 0);
-	void SetActive(BitAction bitAction);
+
+	void SetInverting(bool inverting);
 protected:
-	BitAction _BitAction;
-	uint8_t _DataSize;
+	uint8_t _dataSize;
+	bool _inverting;
 };
 
 #endif /* TOOL_ULIMIT_H_ */

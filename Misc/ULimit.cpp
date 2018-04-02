@@ -8,10 +8,10 @@
 #include <Misc/ULimit.h>
 #include <Tool/UTick.h>
 
-ULimit::ULimit(uint8_t dataSize, BitAction bitAction) {
-	_DataSize = dataSize;
-	Data = new BytetoBit_Typedef[_DataSize];
-	_BitAction = bitAction;
+ULimit::ULimit(uint8_t limitNum, bool inverting) {
+	_dataSize = limitNum;
+	Data = new BytetoBit_Typedef[_dataSize];
+	_inverting = inverting;
 }
 
 ULimit::~ULimit() {
@@ -41,7 +41,7 @@ bool ULimit::Check(uint8_t sensorNo, bool reFresh) {
 	uint8_t index = sensorNo >> 3;
 	//计算掩码
 	uint8_t mask = uint8_t(1) << (sensorNo % 8);
-	if (index < _DataSize) {
+	if (index < _dataSize) {
 		if ((Data[index].byte & mask) != 0) {
 			return true;
 		}
@@ -89,6 +89,6 @@ bool ULimit::WaittingWhile(uint8_t sensorNo, uint64_t timeOut) {
  * param bitAction 触发电平
  * return void
  */
-void ULimit::SetActive(BitAction bitAction) {
-	_BitAction = bitAction;
+void SetInverting(bool inverting) {
+	_inverting = inverting;
 }
