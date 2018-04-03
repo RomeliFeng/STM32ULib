@@ -22,6 +22,7 @@ void UValve::Open() {
 	for (uint8_t i = 0; i < _dataSize; ++i) {
 		_data[i].byte = status;
 	}
+	Apply();
 }
 
 void UValve::Open(uint8_t valveNo) {
@@ -34,6 +35,7 @@ void UValve::Open(uint8_t valveNo) {
 	} else {
 		_data[index].byte |= mask;
 	}
+	Apply();
 }
 
 void UValve::Close() {
@@ -41,6 +43,7 @@ void UValve::Close() {
 	for (uint8_t i = 0; i < _dataSize; ++i) {
 		_data[i].byte = status;
 	}
+	Apply();
 }
 
 void UValve::Close(uint8_t valveNo) {
@@ -53,12 +56,14 @@ void UValve::Close(uint8_t valveNo) {
 	} else {
 		_data[index].byte &= (~mask);
 	}
+	Apply();
 }
 
 void UValve::Control(uint8_t* status) {
 	for (uint8_t i = 0; i < _dataSize; ++i) {
 		_data[i].byte = _inverting ? ~status[i] : status[i];
 	}
+	Apply();
 }
 
 void UValve::Control(uint8_t* status, bool onOff) {
@@ -70,6 +75,7 @@ void UValve::Control(uint8_t* status, bool onOff) {
 			_data[i].byte |= status[i];
 		}
 	}
+	Apply();
 }
 
 void UValve::SetInverting(bool inverting) {
