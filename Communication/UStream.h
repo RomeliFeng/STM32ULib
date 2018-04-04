@@ -93,8 +93,8 @@ public:
 	Status_Typedef PeekNextDigital(uint8_t* data, uint8_t ignore,
 			bool detectDecimal = false);
 
-	virtual Status_Typedef NextInt(void* num, uint8_t ignore = 0);
-	virtual Status_Typedef NextFloat(void* flo, uint8_t ignore = 0);
+	virtual Status_Typedef NextInt(int32_t* num, uint8_t ignore = 0);
+	virtual Status_Typedef NextDouble(double* flo, uint8_t ignore = 0);
 
 	virtual uint16_t Available();
 	virtual bool IsEmpty(Buffer_Typedef &buffer);

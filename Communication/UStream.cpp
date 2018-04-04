@@ -137,7 +137,7 @@ Status_Typedef UStream::PeekNextDigital(uint8_t *data, uint8_t ignore,
  * param2 ignore 忽略的字符
  * return Status_Typedef
  */
-Status_Typedef UStream::NextInt(void *num, uint8_t ignore) {
+Status_Typedef UStream::NextInt(int32_t *num, uint8_t ignore) {
 	bool firstChar = true;
 	bool isNeg = false;
 	uint8_t c = 0;
@@ -157,6 +157,15 @@ Status_Typedef UStream::NextInt(void *num, uint8_t ignore) {
 					//'-'不是第一个数
 					break;
 				}
+			} else if (c == '+') {
+				if (firstChar) {
+					//检测到一个'+'
+					SpInc(_RxBuf);
+					continue;
+				} else {
+					//'+'不是第一个数
+					break;
+				}
 			} else if ((c == ignore) && (ignore != 0)) {
 				SpInc(_RxBuf);
 				continue;
@@ -169,14 +178,14 @@ Status_Typedef UStream::NextInt(void *num, uint8_t ignore) {
 		}
 	}
 	if ((sp != _RxBuf.start) && (c != '-') && (c != ignore)) {
-		//有读取到数
+//有读取到数
 		if (isNeg) {
 			n = -n;
 		}
 		*(int32_t *) num = n;
 		return Status_Ok;
 	} else {
-		//没有读取到数
+//没有读取到数
 		*(int32_t *) num = 0;
 		return Status_Error;
 	}
@@ -189,7 +198,7 @@ Status_Typedef UStream::NextInt(void *num, uint8_t ignore) {
  * param2 ignore 忽略的字符
  * return Status_Typedef
  */
-Status_Typedef UStream::NextFloat(void* flo, uint8_t ignore) {
+Status_Typedef UStream::NextDouble(double* flo, uint8_t ignore) {
 	double f = 0;
 	double frac = 1.0;
 	bool isNeg = false;
@@ -204,6 +213,15 @@ Status_Typedef UStream::NextFloat(void* flo, uint8_t ignore) {
 				if (firstChar) {
 					//检测到一个'-'
 					isNeg = true;
+					SpInc(_RxBuf);
+					continue;
+				} else {
+					//'-'不是第一个数
+					break;
+				}
+			} else if (c == '+') {
+				if (firstChar) {
+					//检测到一个'+'
 					SpInc(_RxBuf);
 					continue;
 				} else {
@@ -239,13 +257,13 @@ Status_Typedef UStream::NextFloat(void* flo, uint8_t ignore) {
 	}
 
 	if ((sp != _RxBuf.start) && (c != '-') && (c != ignore)) {
-		//有读取到数
+//有读取到数
 		f = isNeg ? -f : f;
 		f = isFra ? f * frac : f;
 		*(double *) flo = f;
 		return Status_Ok;
 	} else {
-		//没有读取到数
+//没有读取到数
 		*(double *) flo = 0;
 		return Status_Error;
 	}
@@ -258,7 +276,7 @@ Status_Typedef UStream::NextFloat(void* flo, uint8_t ignore) {
  * return bool
  */
 inline bool UStream::IsEmpty(Buffer_Typedef &buffer) {
-	//判断缓冲区是否为空
+//判断缓冲区是否为空
 	return buffer.start == buffer.end;
 }
 
@@ -288,10 +306,10 @@ void UStream::Clear() {
  */
 inline Status_Typedef UStream::SpInc(Buffer_Typedef &buffer) {
 	if (IsEmpty(buffer)) {
-		//缓冲区为空
+//缓冲区为空
 		return Status_Error;
 	} else {
-		//缓冲区指针+1
+//缓冲区指针+1
 		buffer.start = uint16_t((buffer.start + 1) % buffer.size);
 		return Status_Ok;
 	}
@@ -304,8 +322,7 @@ inline Status_Typedef UStream::SpInc(Buffer_Typedef &buffer) {
  * return Status_Typedef
  */
 inline Status_Typedef UStream::SpDec(Buffer_Typedef &buffer) {
-	buffer.start = uint16_t(
-			buffer.start == 0 ? buffer.size : buffer.start - 1);
+	buffer.start = uint16_t(buffer.start == 0 ? buffer.size : buffer.start - 1);
 	return Status_Ok;
 }
 
