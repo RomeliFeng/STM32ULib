@@ -294,7 +294,14 @@ bool UStream::IsBusy() {
  * explain 清空读取流内数据
  * return void
  */
-void UStream::Clear() {
+void UStream::Discard(uint16_t num) {
+	if (num != 0) {
+		if (num < Available()) {
+			//如果丢弃的字节小于缓冲剩余字节数，丢弃相应的字节并退出
+			_RxBuf.start = (_RxBuf.start + num) & _RxBuf.size;
+			return;
+		}
+	}
 	_RxBuf.start = _RxBuf.end;
 }
 
