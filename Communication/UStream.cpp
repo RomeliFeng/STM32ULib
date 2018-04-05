@@ -121,8 +121,8 @@ Status_Typedef UStream::PeekNextDigital(uint8_t *data, uint8_t ignore,
 		bool detectDecimal) {
 	//偷看一个数
 	Peek(data);
-	//当读到的字符为 '-','0'-'9','.'（detectDecimal为true）时返回
-	if ((*data == '-') || ((*data >= '0') && (*data <= '9'))
+	//当读到的字符为 '-','+','0'-'9','.'（detectDecimal为true）时返回
+	if ((*data == '-') || (*data == '+') || ((*data >= '0') && (*data <= '9'))
 			|| ((*data == '.') && detectDecimal) || (*data == ignore)) {
 	} else {
 		return Status_Error;
@@ -298,7 +298,7 @@ void UStream::Discard(uint16_t num) {
 	if (num != 0) {
 		if (num < Available()) {
 			//如果丢弃的字节小于缓冲剩余字节数，丢弃相应的字节并退出
-			_RxBuf.start = (_RxBuf.start + num) & _RxBuf.size;
+			_RxBuf.start = (_RxBuf.start + num) % _RxBuf.size;
 			return;
 		}
 	}
