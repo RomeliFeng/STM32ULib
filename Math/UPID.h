@@ -11,21 +11,17 @@
 class UPID {
 public:
 	enum Mode_Typedef {
-		Mode_Diff, Mode_Post  //Post λ����
-	};
-
-	struct Param_Typedef {
-		float Input;
-		float Output;
-		float SetPoint;
+		Mode_Normal, //普通模式
+		Mode_PONM //过冲抑制模式
 	};
 
 	enum Dir_Typedef {
 		Dir_Postive, Dir_Negtive
 	};
 
-	UPID(float kp, float ki, float kd, float interval, Dir_Typedef dir,
-			Param_Typedef &UPIDParam, Mode_Typedef mode);
+	UPID(float& input, float& setPoint, float& output, float kp, float ki,
+			float kd, float outputMin, float outputMax, float interval,
+			Mode_Typedef mode = Mode_Normal, Dir_Typedef dir = Dir_Postive);
 	void SetTunings(float kp, float ki, float kd);
 	void SetInterval(float interval);
 	void SetLimits(float min, float max);
@@ -34,20 +30,23 @@ public:
 	void Clear();
 
 private:
-	Param_Typedef &PIDParam;
-	Mode_Typedef Mode;
-	Dir_Typedef Dir;
-	float Kp;
-	float Ki;
-	float Kd;
-	float Last;
-	float pError;
-	float iTerm;
-	float dTerm;
-	float Min;
-	float Max;
-	float Interval;
-};
+	float& _input;
+	float& _setPoint;
+	float& _output;
+	Mode_Typedef _mode;
+	Dir_Typedef _dir;
+	float _kp;
+	float _ki;
+	float _kd;
+	float _lastInput;
+	float _pError;
+	float _iTerm;
+	float _dError;
+	float _outputMin;
+	float _outputMax;
+	float _interval;
 
+	float Constrain(float value);
+};
 
 #endif /* UPID_H_ */
