@@ -28,17 +28,13 @@ void UEventLoop::TryDo() {
 	EventList::iterator iter = _List.begin();
 	while (iter != _List.end()) {
 		Unit_Typedef& unit = *iter;
-		uint64_t now = UTick::Millis();
+		uint64_t now = UTick::Micros();
 		if (now - unit.LastCall >= unit.Interval) {
 			//如果事件距离上次被调用超过了间隔时间
 			unit.LastCall = now;
 			unit.Event();
 		}
-		if ((unit.OverTime != 0) && (now - unit.LastCall >= unit.OverTime)) {
-			iter = _List.erase(iter);
-		} else {
-			++iter;
-		}
+		++iter;
 	};
 }
 
@@ -49,11 +45,12 @@ void UEventLoop::TryDo() {
  * param2 interval 调用时间间隔
  * return void
  */
-void UEventLoop::Insert(voidFun event, uint32_t interval) {
+void UEventLoop::Insert(voidFun event, uint64_t interval, bool isMicroSecond) {
 	//尝试移除相同事件
 	Remove(event);
 	//插入新的事件
-	_List.push_back(Unit_Typedef(event, interval));
+	_List.push_back(
+			Unit_Typedef(event, isMicroSecond ? interval : interval * 1000));
 }
 
 /*
