@@ -45,7 +45,7 @@ void UEventLoop::TryDo() {
  * param2 interval 调用时间间隔
  * return void
  */
-void UEventLoop::Insert(voidFun event, uint64_t interval, bool isMicroSecond) {
+void UEventLoop::Insert(UEvent event, uint64_t interval, bool isMicroSecond) {
 	//尝试移除相同事件
 	Remove(event);
 	//插入新的事件
@@ -59,7 +59,7 @@ void UEventLoop::Insert(voidFun event, uint64_t interval, bool isMicroSecond) {
  * param event 待移除的事件
  * return void
  */
-void UEventLoop::Remove(voidFun event) {
+void UEventLoop::Remove(UEvent event) {
 	//FixMe 暂时没法解决这个问题
 //	EventList::iterator iter = _List.begin();
 //	do {

@@ -16,10 +16,10 @@ class UEventPool {
 public:
 	~UEventPool();
 	void TryDo();
-	void Insert(voidFun event);
+	void Insert(UEvent event);
 	void Clear();
 private:
-	std::queue<voidFun> _queue;
+	std::queue<UEvent> _queue;
 };
 
 #endif /* UEVENTPOOL_H_ */

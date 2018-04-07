@@ -16,7 +16,7 @@
 class UEventLoop {
 public:
 	struct Unit_Typedef {
-		Unit_Typedef(voidFun event, uint64_t interval) {
+		Unit_Typedef(UEvent event, uint64_t interval) {
 			//事件回调函数
 			Event = event;
 			//事件回调时间间隔
@@ -24,7 +24,7 @@ public:
 			//事件上次回调时间
 			LastCall = 0;
 		}
-		voidFun Event;
+		UEvent Event;
 		uint64_t Interval;
 		uint64_t LastCall;
 	};
@@ -34,8 +34,8 @@ public:
 	virtual ~UEventLoop();
 
 	void TryDo();
-	void Insert(voidFun event, uint64_t interval, bool isMicroSecond = false);
-	void Remove(voidFun event);
+	void Insert(UEvent event, uint64_t interval, bool isMicroSecond = false);
+	void Remove(UEvent event);
 	void Clear();
 private:
 	EventList _List;

@@ -29,7 +29,7 @@ void UEventPool::TryDo() {
  * param 欲插入的事件
  * return void
  */
-void UEventPool::Insert(voidFun event) {
+void UEventPool::Insert(UEvent event) {
 	_queue.push(event);
 }
 
