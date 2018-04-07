@@ -36,6 +36,11 @@ UStream::UStream(uint16_t rxBufSize, uint16_t txBufSize, uint16_t dmaRxBufSize,
 	_txBuf2.start = 0;
 	_txBuf2.end = 0;
 	_txBuf2.busy = false;
+
+	ReceivedEvent = nullptr;
+	SendedEvent = nullptr;
+	_receivedEventPool = nullptr;
+	_sendedEventPool = nullptr;
 }
 
 UStream::~UStream() {
@@ -329,6 +334,30 @@ bool UStream::IsBusy() {
 
 /*
  * author Romeli
+ * explain 设置事件触发时自动加入事件池
+ * param1 receivedEvent ReceiveEvent的回调函数
+ * param2 pool 触发时会加入的的事件池
+ * return void
+ */
+void UStream::SetReceivedEventPool(UEvent receivedEvent, UEventPool& pool) {
+	ReceivedEvent = receivedEvent;
+	_receivedEventPool = &pool;
+}
+
+/*
+ * author Romeli
+ * explain 设置事件触发时自动加入事件池
+ * param1 receivedEvent ReceiveEvent的回调函数
+ * param2 pool 触发时会加入的的事件池
+ * return void
+ */
+void UStream::SetSendedEventPool(UEvent sendEvent, UEventPool& pool) {
+	SendedEvent = sendEvent;
+	_sendedEventPool = &pool;
+}
+
+/*
+ * author Romeli
  * explain 清空读取流内数据
  * return void
  */
@@ -377,10 +406,9 @@ inline Status_Typedef UStream::SpDec(Buffer_Typedef &buffer) {
  * param str 字符串地址
  * return uint16_t
  */
-uint16_t UStream::getLen(uint8_t* str) {
+uint16_t UStream::getLen(uint8_t * str) {
 	uint16_t len = 0;
 	for (len = 0; *(str + len) != '\0'; ++len)
 		;
 	return len;
 }
-

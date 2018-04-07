@@ -12,9 +12,18 @@
 #include <Tool/UConvert.h>
 #include <Misc/UDebug.h>
 #include <Misc/UMisc.h>
+#include <Event/UEventPool.h>
 
 class UStream: public UConvert {
 public:
+	enum Mode_Typedef {
+		Mode_Normal, Mode_DMA
+	};
+
+	enum Periph_Typedef {
+		Periph_USART, Periph_SPI, Periph_I2C
+	};
+
 	struct Buffer_Typedef {
 		uint8_t* data;
 		uint16_t size;
@@ -23,9 +32,11 @@ public:
 		volatile bool busy;
 	};
 
-	UStream(uint16_t rxBufSize, uint16_t txBufSize, uint16_t dmaRxBufSize = 0,
-			uint16_t txBuf2Size = 0);
-	virtual ~UStream() ;
+	UEvent SendedEvent, ReceivedEvent;
+
+	UStream(uint16_t rxBufSize, uint16_t txBufSize, uint16_t dmaRxBufSize,
+			uint16_t txBuf2Size);
+	virtual ~UStream();
 
 	//接口
 	/*
@@ -84,9 +95,17 @@ public:
 	virtual uint16_t Available();
 	virtual bool IsEmpty(Buffer_Typedef &buffer);
 	virtual bool IsBusy();
+
+	virtual void SetReceivedEventPool(UEvent receivedEvent, UEventPool &pool);
+	virtual void SetSendedEventPool(UEvent sendEvent, UEventPool &pool);
+
 	void Discard(uint16_t num = 0);
 protected:
 	Buffer_Typedef _rxBuf, _txBuf, _dmaRxBuf, _txBuf2;
+	Periph_Typedef _periph;
+	UEventPool* _receivedEventPool;
+	UEventPool* _sendedEventPool;
+
 	Status_Typedef SpInc(Buffer_Typedef &buffer);
 	Status_Typedef SpDec(Buffer_Typedef &buffer);
 private:
