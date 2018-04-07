@@ -103,6 +103,7 @@ public:
 protected:
 	Buffer_Typedef _rxBuf, _txBuf, _dmaRxBuf, _txBuf2;
 	Periph_Typedef _periph;
+	Mode_Typedef _mode;
 	UEventPool* _receivedEventPool;
 	UEventPool* _sendedEventPool;
 
