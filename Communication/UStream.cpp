@@ -6,6 +6,7 @@
  */
 
 #include <Communication/UStream.h>
+#include <cstring>
 
 UStream::UStream(uint16_t rxBufSize, uint16_t txBufSize, uint16_t dmaRxBufSize,
 		uint16_t txBuf2Size) {
@@ -80,7 +81,7 @@ Status_Typedef UStream::Write(uint8_t data, bool sync) {
  * return Status_Typedef
  */
 Status_Typedef UStream::Print(uint8_t* str) {
-	uint16_t len = getLen((uint8_t *) str);
+	uint16_t len = GetLen((uint8_t *) str);
 	if (len != 0) {
 		return Write((uint8_t *) str, len);
 	} else {
@@ -408,9 +409,73 @@ inline Status_Typedef UStream::SpDec(Buffer_Typedef &buffer) {
  * param str 字符串地址
  * return uint16_t
  */
-uint16_t UStream::getLen(uint8_t * str) {
+uint16_t UStream::GetLen(uint8_t * str) {
 	uint16_t len = 0;
 	for (len = 0; *(str + len) != '\0'; ++len)
 		;
 	return len;
+}
+
+/*
+ * author Romeli
+ * explain 使用DMA发送数据（数据长度为使用的缓冲区的剩余空间大小）
+ * param data 指向数据的指针的引用 NOTE @Romeli 这里使用的指针的引用，用于发送数据后移动指针位置
+ * param len 数据长度的引用
+ * param txBuf 使用的缓冲区的引用
+ * return void
+ */
+void UStream::DMASend(uint8_t *&data, uint16_t &len) {
+	Buffer_Typedef* txBuf;
+
+	while (len != 0) {
+		if ((_DMAy_Channelx_Tx->CMAR != (uint32_t) _txBuf.data)
+				&& (_txBuf.size - _txBuf.end != 0)) {
+			//若缓冲区1空闲，并且有空闲空间
+			txBuf = &_txBuf;
+		} else if ((_DMAy_Channelx_Tx->CMAR != (uint32_t) _txBuf2.data)
+				&& (_txBuf2.size - _txBuf2.end != 0)) {
+			//若缓冲区2空闲，并且有空闲空间
+			txBuf = &_txBuf2;
+		} else {
+			//发送繁忙，两个缓冲区均在使用或已满
+			//FIXME@romeli 需要添加超时返回代码
+			txBuf = 0;
+		}
+
+		if (txBuf != 0) {
+			uint16_t avaSize, copySize;
+
+			//置位忙标志，防止计算中DMA自动加载发送缓冲
+			txBuf->busy = true;
+			//计算缓冲区空闲空间大小
+			avaSize = uint16_t(txBuf->size - txBuf->end);
+			//计算可以发送的字节大小
+			copySize = avaSize < len ? avaSize : len;
+			//拷贝字节到缓冲区
+			memcpy(txBuf->data + txBuf->end, data, copySize);
+			//偏移发送缓冲区的末尾
+			txBuf->end = uint16_t(txBuf->end + copySize);
+			//偏移掉已发送字节
+			data += copySize;
+			//长度减去已发送长度
+			len = uint16_t(len - copySize);
+
+			if (!_DMABusy) {
+				//DMA发送空闲，发送新的缓冲
+				_DMABusy = true;
+
+				//设置DMA地址
+				_DMAy_Channelx_Tx->CMAR = (uint32_t) txBuf->data;
+				_DMAy_Channelx_Tx->CNDTR = txBuf->end;
+
+				//使能DMA开始发送
+				_DMAy_Channelx_Tx->CCR |= DMA_CCR1_EN;
+			}
+			//解除忙标志
+			txBuf->busy = false;
+		}
+	}
+}
+
+void UStream::DMAReceive(uint8_t*& data, uint16_t& len) {
 }

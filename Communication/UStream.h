@@ -99,10 +99,21 @@ protected:
 	UEventPool* _receivedEventPool;
 	UEventPool* _sendedEventPool;
 
+	DMA_TypeDef* _DMAx;
+	DMA_Channel_TypeDef* _DMAy_Channelx_Rx;
+	DMA_Channel_TypeDef* _DMAy_Channelx_Tx;
+	uint32_t _DMAy_IT_TCx_Rx, _DMAy_IT_TCx_Tx;
+
+	volatile bool _DMABusy = false;
+
 	Status_Typedef SpInc(Buffer_Typedef &buffer);
 	Status_Typedef SpDec(Buffer_Typedef &buffer);
+	uint16_t GetLen(uint8_t *str);
+
+
+	void DMASend(uint8_t *&data, uint16_t &len);
+	void DMAReceive(uint8_t *&data, uint16_t &len);
 private:
-	uint16_t getLen(uint8_t *str);
 };
 
 #endif /* USTEAM_H_ */
