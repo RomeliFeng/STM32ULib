@@ -38,17 +38,9 @@ public:
 			uint16_t txBuf2Size);
 	virtual ~UStream();
 
-	//接口
-	/*
-	 * author Romeli
-	 * explain 通过流写数组
-	 * param1 data 数组的首地址
-	 * param2 len 数组的长度
-	 * return Status_Typedef
-	 */
-	virtual Status_Typedef Write(uint8_t* data, uint16_t len) = 0;
-	//虚函数
-	virtual Status_Typedef Write(uint8_t data);
+	virtual Status_Typedef Write(uint8_t* data, uint16_t len,
+			bool sync = false) = 0;
+	virtual Status_Typedef Write(uint8_t data, bool sync = false);
 
 	Status_Typedef Print(uint8_t* str);
 	inline Status_Typedef Print(const char* str) {
@@ -82,8 +74,8 @@ public:
 		return Print((double) flo, ndigit);
 	}
 
-	virtual Status_Typedef Read(uint8_t* data, uint16_t len);
-	virtual Status_Typedef Read(uint8_t* data);
+	virtual Status_Typedef Read(uint8_t* data, uint16_t len, bool sync = false);
+	virtual Status_Typedef Read(uint8_t* data, bool sync = false);
 
 	Status_Typedef Peek(uint8_t *data);
 	Status_Typedef PeekNextDigital(uint8_t* data, uint8_t ignore,

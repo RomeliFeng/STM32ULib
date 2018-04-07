@@ -66,9 +66,10 @@ uint16_t UStream::Available() {
  * author Romeli
  * explain 通过流写单字节
  * param data 数据
+ * param sync 是否是同步模式传输
  * return Status_Typedef
  */
-inline Status_Typedef UStream::Write(uint8_t data) {
+Status_Typedef UStream::Write(uint8_t data, bool sync) {
 	return Write(&data, 1);
 }
 
@@ -117,11 +118,11 @@ Status_Typedef UStream::Print(double flo, uint8_t ndigit) {
 /*
  * author Romeli
  * explain 从流中读取指定数据长度
- * param1 data 读回数据存放数组
- * param2 len 读取数据长度
+ * param data 读回数据存放数组
+ * param sync 是否是同步读取
  * return Status_Typedef
  */
-Status_Typedef UStream::Read(uint8_t* data, uint16_t len) {
+Status_Typedef UStream::Read(uint8_t* data, uint16_t len, bool sync) {
 	//循环读取
 	for (uint8_t i = 0; i < len; ++i) {
 		Read(data + i);
@@ -132,10 +133,11 @@ Status_Typedef UStream::Read(uint8_t* data, uint16_t len) {
 /*
  * author Romeli
  * explain 从流中读取一个字节
- * param1 data 读回数据存放位置
+ * param data 读回数据存放位置
+ * param sync 是否是同步读取
  * return Status_Typedef
  */
-Status_Typedef UStream::Read(uint8_t* data) {
+Status_Typedef UStream::Read(uint8_t* data, bool sync) {
 	//读取一个数
 	*data = _rxBuf.data[_rxBuf.start];
 	return SpInc(_rxBuf);
