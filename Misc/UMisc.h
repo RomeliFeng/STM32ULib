@@ -14,7 +14,7 @@
 
 //#define voidFun
 //typedef void (*voidFun)();
-typedef std::function<void(void)> voidFun;
+typedef std::function<void(void)> UEvent;
 
 //these function are work for high speed setting
 inline void TIM_Enable(TIM_TypeDef* TIMx) {
@@ -121,7 +121,7 @@ union WordtoByte_Typedef {
 	WordtoByte_Typedef(uint16_t& w) {
 		word = w;
 	}
-	WordtoByte_Typedef(){
+	WordtoByte_Typedef() {
 
 	}
 	uint8_t byte[2];
@@ -166,5 +166,8 @@ struct UIT_Typedef {
 	uint8_t PreemptionPriority;
 	uint8_t SubPriority;
 };
+
+extern uint32_t CalcDMATC(DMA_Channel_TypeDef* DMAy_Channelx);
+
 
 #endif /* UMISC_H_ */
