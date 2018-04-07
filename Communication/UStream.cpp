@@ -7,6 +7,44 @@
 
 #include <Communication/UStream.h>
 
+UStream::UStream(uint16_t rxBufSize, uint16_t txBufSize, uint16_t dmaRxBufSize,
+		uint16_t txBuf2Size) {
+	_rxBuf.size = rxBufSize;
+	_rxBuf.data = new uint8_t[_rxBuf.size];
+	_rxBuf.start = 0;
+	_rxBuf.end = 0;
+	_rxBuf.busy = false;
+
+	_txBuf.size = txBufSize;
+	_txBuf.data = new uint8_t[_rxBuf.size];
+	_txBuf.start = 0;
+	_txBuf.end = 0;
+	_txBuf.busy = false;
+
+	_dmaRxBuf.size = dmaRxBufSize;
+	if (_dmaRxBuf.size != 0) {
+		_dmaRxBuf.data = new uint8_t[_dmaRxBuf.size];
+	}
+	_dmaRxBuf.start = 0;
+	_dmaRxBuf.end = 0;
+	_dmaRxBuf.busy = false;
+
+	_txBuf2.size = txBuf2Size;
+	if (_txBuf2.size != 0) {
+		_txBuf2.data = new uint8_t[_txBuf2.size];
+	}
+	_txBuf2.start = 0;
+	_txBuf2.end = 0;
+	_txBuf2.busy = false;
+}
+
+UStream::~UStream() {
+	delete[] _rxBuf.data;
+	delete[] _txBuf.data;
+	delete[] _dmaRxBuf.data;
+	delete[] _txBuf2.data;
+}
+
 /*
  * author Romeli
  * explain 获取缓冲区内的缓冲字符数量
@@ -14,9 +52,9 @@
  */
 uint16_t UStream::Available() {
 	return uint16_t(
-			_RxBuf.start <= _RxBuf.end ?
-					_RxBuf.end - _RxBuf.start :
-					_RxBuf.size - _RxBuf.start + _RxBuf.end);
+			_rxBuf.start <= _rxBuf.end ?
+					_rxBuf.end - _rxBuf.start :
+					_rxBuf.size - _rxBuf.start + _rxBuf.end);
 }
 
 /*
@@ -94,8 +132,8 @@ Status_Typedef UStream::Read(uint8_t* data, uint16_t len) {
  */
 Status_Typedef UStream::Read(uint8_t* data) {
 	//读取一个数
-	*data = _RxBuf.data[_RxBuf.start];
-	return SpInc(_RxBuf);
+	*data = _rxBuf.data[_rxBuf.start];
+	return SpInc(_rxBuf);
 }
 
 /*
@@ -106,7 +144,7 @@ Status_Typedef UStream::Read(uint8_t* data) {
  */
 Status_Typedef UStream::Peek(uint8_t* data) {
 	//偷看一个数
-	*data = _RxBuf.data[_RxBuf.start];
+	*data = _rxBuf.data[_rxBuf.start];
 	return Status_Ok;
 }
 
@@ -141,7 +179,7 @@ Status_Typedef UStream::NextInt(int32_t *num, uint8_t ignore) {
 	bool firstChar = true;
 	bool isNeg = false;
 	uint8_t c = 0;
-	uint16_t sp = _RxBuf.start;
+	uint16_t sp = _rxBuf.start;
 	int32_t n = 0;
 
 	while (Available() > 0) {
@@ -151,7 +189,7 @@ Status_Typedef UStream::NextInt(int32_t *num, uint8_t ignore) {
 				if (firstChar) {
 					//检测到一个'-'
 					isNeg = true;
-					SpInc(_RxBuf);
+					SpInc(_rxBuf);
 					continue;
 				} else {
 					//'-'不是第一个数
@@ -160,24 +198,24 @@ Status_Typedef UStream::NextInt(int32_t *num, uint8_t ignore) {
 			} else if (c == '+') {
 				if (firstChar) {
 					//检测到一个'+'
-					SpInc(_RxBuf);
+					SpInc(_rxBuf);
 					continue;
 				} else {
 					//'+'不是第一个数
 					break;
 				}
 			} else if ((c == ignore) && (ignore != 0)) {
-				SpInc(_RxBuf);
+				SpInc(_rxBuf);
 				continue;
 			}
 			n = n * 10 + c - '0';
 			firstChar = false;
-			SpInc(_RxBuf);
+			SpInc(_rxBuf);
 		} else {
 			break;
 		}
 	}
-	if ((sp != _RxBuf.start) && (c != '-') && (c != ignore)) {
+	if ((sp != _rxBuf.start) && (c != '-') && (c != ignore)) {
 //有读取到数
 		if (isNeg) {
 			n = -n;
@@ -204,7 +242,7 @@ Status_Typedef UStream::NextDouble(double* flo, uint8_t ignore) {
 	bool isNeg = false;
 	bool isFra = false;
 	bool firstChar = true;
-	uint16_t sp = _RxBuf.start;
+	uint16_t sp = _rxBuf.start;
 	uint8_t c = 0;
 
 	while (Available() > 0) {
@@ -213,7 +251,7 @@ Status_Typedef UStream::NextDouble(double* flo, uint8_t ignore) {
 				if (firstChar) {
 					//检测到一个'-'
 					isNeg = true;
-					SpInc(_RxBuf);
+					SpInc(_rxBuf);
 					continue;
 				} else {
 					//'-'不是第一个数
@@ -222,21 +260,21 @@ Status_Typedef UStream::NextDouble(double* flo, uint8_t ignore) {
 			} else if (c == '+') {
 				if (firstChar) {
 					//检测到一个'+'
-					SpInc(_RxBuf);
+					SpInc(_rxBuf);
 					continue;
 				} else {
 					//'-'不是第一个数
 					break;
 				}
 			} else if ((c == ignore) && (ignore != 0)) {
-				SpInc(_RxBuf);
+				SpInc(_rxBuf);
 				continue;
 			} else if (c == '.') {
 				if (isFra) { //不应出现两个'-'
 					break;
 				} else {
 					if (!firstChar) {
-						SpInc(_RxBuf);
+						SpInc(_rxBuf);
 						isFra = true;
 						continue;
 					} else {
@@ -249,14 +287,14 @@ Status_Typedef UStream::NextDouble(double* flo, uint8_t ignore) {
 				frac *= 0.1;
 			}
 			f = f * 10 + c - '0';
-			SpInc(_RxBuf);
+			SpInc(_rxBuf);
 			firstChar = false;
 		} else {
 			break;
 		}
 	}
 
-	if ((sp != _RxBuf.start) && (c != '-') && (c != ignore)) {
+	if ((sp != _rxBuf.start) && (c != '-') && (c != ignore)) {
 //有读取到数
 		f = isNeg ? -f : f;
 		f = isFra ? f * frac : f;
@@ -298,11 +336,11 @@ void UStream::Discard(uint16_t num) {
 	if (num != 0) {
 		if (num < Available()) {
 			//如果丢弃的字节小于缓冲剩余字节数，丢弃相应的字节并退出
-			_RxBuf.start = (_RxBuf.start + num) % _RxBuf.size;
+			_rxBuf.start = (_rxBuf.start + num) % _rxBuf.size;
 			return;
 		}
 	}
-	_RxBuf.start = _RxBuf.end;
+	_rxBuf.start = _rxBuf.end;
 }
 
 /*
@@ -345,3 +383,4 @@ uint16_t UStream::getLen(uint8_t* str) {
 		;
 	return len;
 }
+

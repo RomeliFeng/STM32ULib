@@ -23,24 +23,9 @@ public:
 		volatile bool busy;
 	};
 
-	UStream(uint16_t rxBufSize, uint16_t txBufSize) {
-		_RxBuf.size = rxBufSize;
-		_RxBuf.data = new uint8_t[_RxBuf.size];
-		_RxBuf.start = 0;
-		_RxBuf.end = 0;
-		_RxBuf.busy = false;
-
-		_TxBuf.size = txBufSize;
-		_TxBuf.data = new uint8_t[_TxBuf.size];
-		_TxBuf.start = 0;
-		_TxBuf.end = 0;
-		_TxBuf.busy = false;
-	}
-
-	virtual ~UStream() {
-		delete[] _RxBuf.data;
-		delete[] _TxBuf.data;
-	}
+	UStream(uint16_t rxBufSize, uint16_t txBufSize, uint16_t dmaRxBufSize = 0,
+			uint16_t txBuf2Size = 0);
+	virtual ~UStream() ;
 
 	//接口
 	/*
@@ -101,7 +86,7 @@ public:
 	virtual bool IsBusy();
 	void Discard(uint16_t num = 0);
 protected:
-	Buffer_Typedef _RxBuf, _TxBuf;
+	Buffer_Typedef _rxBuf, _txBuf, _dmaRxBuf, _txBuf2;
 	Status_Typedef SpInc(Buffer_Typedef &buffer);
 	Status_Typedef SpDec(Buffer_Typedef &buffer);
 private:
