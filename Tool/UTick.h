@@ -28,8 +28,8 @@ public:
 	static void IRQ();
 private:
 	static bool _InitFlag;
-	static volatile uint_fast64_t _Now;
-	static uint_fast64_t _Last;
+	static volatile uint64_t _Now;
+	static uint64_t _Last;
 	static uint32_t _Interval;
 };
 
