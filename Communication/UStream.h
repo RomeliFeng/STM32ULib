@@ -91,14 +91,14 @@ public:
 
 	//使用模板实现多态接口
 	template<typename T>
-	Status_Typedef NextInt(T& num, uint8_t ignore = 0) {
+	inline Status_Typedef NextInt(T& num, uint8_t ignore = 0) {
 		int64_t n;
 		Status_Typedef status = nextInt(&n, ignore);
 		num = n;
 		return status;
 	}
 	template<typename T>
-	Status_Typedef NextFloat(T& flo, uint8_t ignore = 0) {
+	inline Status_Typedef NextFloat(T& flo, uint8_t ignore = 0) {
 		double f;
 		Status_Typedef status = nextFloat(&f, ignore);
 		flo = f;
