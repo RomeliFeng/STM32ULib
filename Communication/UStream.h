@@ -25,6 +25,14 @@ public:
 	};
 
 	struct Buffer_Typedef {
+		Buffer_Typedef(uint16_t size) {
+			this->size = size;
+			if (this->size != 0) {
+				this->data = new uint8_t[this->size];
+			} else {
+				this->data = nullptr;
+			}
+		}
 		uint8_t* data;
 		uint16_t size;
 		volatile uint16_t start;
@@ -35,11 +43,11 @@ public:
 	UEvent SendedEvent, ReceivedEvent;
 
 	UStream(uint16_t rxBufSize, uint16_t txBufSize, uint16_t dmaRxBufSize,
-			uint16_t txBuf2Size);
+	        uint16_t txBuf2Size);
 	virtual ~UStream();
 
 	virtual Status_Typedef Write(uint8_t* data, uint16_t len,
-			bool sync = false) = 0;
+	        bool sync = false) = 0;
 	virtual Status_Typedef Write(uint8_t data, bool sync = false);
 
 	Status_Typedef Print(uint8_t* str);
@@ -79,7 +87,7 @@ public:
 
 	Status_Typedef Peek(uint8_t *data);
 	Status_Typedef PeekNextDigital(uint8_t* data, uint8_t ignore,
-			bool detectDecimal = false);
+	        bool detectDecimal = false);
 
 	virtual Status_Typedef NextInt(int32_t* num, uint8_t ignore = 0);
 	virtual Status_Typedef NextDouble(double* flo, uint8_t ignore = 0);
@@ -109,7 +117,6 @@ protected:
 	Status_Typedef SpInc(Buffer_Typedef &buffer);
 	Status_Typedef SpDec(Buffer_Typedef &buffer);
 	uint16_t GetLen(uint8_t *str);
-
 
 	void DMASend(uint8_t *&data, uint16_t &len);
 	void DMAReceive(uint8_t *&data, uint16_t &len);

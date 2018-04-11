@@ -9,34 +9,9 @@
 #include <cstring>
 
 UStream::UStream(uint16_t rxBufSize, uint16_t txBufSize, uint16_t dmaRxBufSize,
-		uint16_t txBuf2Size) {
-	_rxBuf.size = rxBufSize;
-	_rxBuf.data = new uint8_t[_rxBuf.size];
-	_rxBuf.start = 0;
-	_rxBuf.end = 0;
-	_rxBuf.busy = false;
-
-	_txBuf.size = txBufSize;
-	_txBuf.data = new uint8_t[_rxBuf.size];
-	_txBuf.start = 0;
-	_txBuf.end = 0;
-	_txBuf.busy = false;
-
-	_dmaRxBuf.size = dmaRxBufSize;
-	if (_dmaRxBuf.size != 0) {
-		_dmaRxBuf.data = new uint8_t[_dmaRxBuf.size];
-	}
-	_dmaRxBuf.start = 0;
-	_dmaRxBuf.end = 0;
-	_dmaRxBuf.busy = false;
-
-	_txBuf2.size = txBuf2Size;
-	if (_txBuf2.size != 0) {
-		_txBuf2.data = new uint8_t[_txBuf2.size];
-	}
-	_txBuf2.start = 0;
-	_txBuf2.end = 0;
-	_txBuf2.busy = false;
+        uint16_t txBuf2Size) :
+		_rxBuf(rxBufSize), _txBuf(txBuf2Size), _dmaRxBuf(dmaRxBufSize), _txBuf2(
+		        txBuf2Size) {
 
 	ReceivedEvent = nullptr;
 	SendedEvent = nullptr;
@@ -58,9 +33,9 @@ UStream::~UStream() {
  */
 uint16_t UStream::Available() {
 	return uint16_t(
-			_rxBuf.start <= _rxBuf.end ?
-					_rxBuf.end - _rxBuf.start :
-					_rxBuf.size - _rxBuf.start + _rxBuf.end);
+	        _rxBuf.start <= _rxBuf.end ?
+	                _rxBuf.end - _rxBuf.start :
+	                _rxBuf.size - _rxBuf.start + _rxBuf.end);
 }
 
 /*
@@ -164,12 +139,12 @@ Status_Typedef UStream::Peek(uint8_t* data) {
  * return Status_Typedef
  */
 Status_Typedef UStream::PeekNextDigital(uint8_t *data, uint8_t ignore,
-		bool detectDecimal) {
+        bool detectDecimal) {
 	//偷看一个数
 	Peek(data);
 	//当读到的字符为 '-','+','0'-'9','.'（detectDecimal为true）时返回
 	if ((*data == '-') || (*data == '+') || ((*data >= '0') && (*data <= '9'))
-			|| ((*data == '.') && detectDecimal) || (*data == ignore)) {
+	        || ((*data == '.') && detectDecimal) || (*data == ignore)) {
 	} else {
 		return Status_Error;
 	}
@@ -429,11 +404,11 @@ void UStream::DMASend(uint8_t *&data, uint16_t &len) {
 
 	while (len != 0) {
 		if ((_DMAy_Channelx_Tx->CMAR != (uint32_t) _txBuf.data)
-				&& (_txBuf.size - _txBuf.end != 0)) {
+		        && (_txBuf.size - _txBuf.end != 0)) {
 			//若缓冲区1空闲，并且有空闲空间
 			txBuf = &_txBuf;
 		} else if ((_DMAy_Channelx_Tx->CMAR != (uint32_t) _txBuf2.data)
-				&& (_txBuf2.size - _txBuf2.end != 0)) {
+		        && (_txBuf2.size - _txBuf2.end != 0)) {
 			//若缓冲区2空闲，并且有空闲空间
 			txBuf = &_txBuf2;
 		} else {
