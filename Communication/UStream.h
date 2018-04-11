@@ -92,11 +92,17 @@ public:
 	//使用模板实现多态接口
 	template<typename T>
 	Status_Typedef NextInt(T& num, uint8_t ignore = 0) {
-		return nextInt(num, ignore);
+		int64_t n;
+		Status_Typedef status = nextInt(&n, ignore);
+		num = n;
+		return status;
 	}
 	template<typename T>
 	Status_Typedef NextFloat(T& flo, uint8_t ignore = 0) {
-		return nextFloat(flo, ignore);
+		double f;
+		Status_Typedef status = nextFloat(&f, ignore);
+		flo = f;
+		return status;
 	}
 
 	virtual uint16_t Available();
@@ -128,8 +134,8 @@ protected:
 	void DMASend(uint8_t *&data, uint16_t &len);
 	void DMAReceive(uint8_t *&data, uint16_t &len);
 private:
-	Status_Typedef nextInt(int64_t& num, uint8_t ignore = 0);
-	Status_Typedef nextFloat(double& flo, uint8_t ignore = 0);
+	Status_Typedef nextInt(int64_t* num, uint8_t ignore = 0);
+	Status_Typedef nextFloat(double* flo, uint8_t ignore = 0);
 };
 
 #endif /* USTEAM_H_ */

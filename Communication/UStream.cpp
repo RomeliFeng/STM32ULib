@@ -323,7 +323,7 @@ void UStream::DMAReceive(uint8_t*& data, uint16_t& len) {
  * param ignore 忽略的字符
  * return Status_Typedef 是否成功
  */
-Status_Typedef UStream::nextInt(int64_t& num, uint8_t ignore) {
+Status_Typedef UStream::nextInt(int64_t* num, uint8_t ignore) {
 	bool firstChar = true;
 	bool isNeg = false;
 	uint8_t c = 0;
@@ -368,11 +368,11 @@ Status_Typedef UStream::nextInt(int64_t& num, uint8_t ignore) {
 		if (isNeg) {
 			n = -n;
 		}
-		num = n;
+		*num = n;
 		return Status_Ok;
 	} else {
 		//没有读取到数
-		num = 0;
+		*num = 0;
 		return Status_Error;
 	}
 }
@@ -384,7 +384,7 @@ Status_Typedef UStream::nextInt(int64_t& num, uint8_t ignore) {
  * param ignore 忽略的字符
  * return Status_Typedef 是否成功
  */
-Status_Typedef UStream::nextFloat(double& flo, uint8_t ignore) {
+Status_Typedef UStream::nextFloat(double* flo, uint8_t ignore) {
 	double f = 0;
 	double frac = 1.0;
 	bool isNeg = false;
@@ -446,11 +446,11 @@ Status_Typedef UStream::nextFloat(double& flo, uint8_t ignore) {
 		//有读取到数
 		f = isNeg ? -f : f;
 		f = isFra ? f * frac : f;
-		flo = f;
+		*flo = f;
 		return Status_Ok;
 	} else {
 		//没有读取到数
-		flo = 0;
+		*flo = 0;
 		return Status_Error;
 	}
 }
