@@ -74,7 +74,7 @@ Status_Typedef UStream::Print(uint8_t* str) {
  */
 Status_Typedef UStream::Print(int32_t num, uint8_t base) {
 	uint8_t str[32];
-	uint16_t len = byNumber(num, base, str);
+	uint16_t len = ByNumber(num, base, str);
 	return Write(str, len);
 }
 
@@ -87,7 +87,7 @@ Status_Typedef UStream::Print(int32_t num, uint8_t base) {
  */
 Status_Typedef UStream::Print(double flo, uint8_t ndigit) {
 	uint8_t str[32];
-	uint16_t len = byFloat(flo, ndigit, str);
+	uint16_t len = ByNumber(flo, ndigit, str);
 	return Write(str, len);
 }
 

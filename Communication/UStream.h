@@ -154,13 +154,13 @@ public:
 	/*
 	 * author Romeli
 	 * explain 从流中读取一个浮点数
-	 * param f 读取的浮点数存放位置
+	 * param flo 读取的浮点数存放位置
 	 * param ignore 忽略的字符
 	 * return Status_Typedef 是否成功
 	 */
 	template<typename T>
-	Status_Typedef NextDouble(T f, uint8_t ignore = 0) {
-		double flo = 0;
+	Status_Typedef NextDouble(T flo, uint8_t ignore = 0) {
+		double f = 0;
 		double frac = 1.0;
 		bool isNeg = false;
 		bool isFra = false;
@@ -209,7 +209,7 @@ public:
 				if (isFra) {
 					frac *= 0.1;
 				}
-				flo = flo * 10 + c - '0';
+				f = f * 10 + c - '0';
 				SpInc(_rxBuf);
 				firstChar = false;
 			} else {
@@ -219,13 +219,13 @@ public:
 
 		if ((sp != _rxBuf.start) && (c != '-') && (c != ignore)) {
 			//有读取到数
-			flo = isNeg ? -flo : flo;
-			flo = isFra ? flo * frac : flo;
-			f = flo;
+			f = isNeg ? -f : f;
+			f = isFra ? f * frac : f;
+			flo = f;
 			return Status_Ok;
 		} else {
 			//没有读取到数
-			f = 0;
+			flo = 0;
 			return Status_Error;
 		}
 	}
