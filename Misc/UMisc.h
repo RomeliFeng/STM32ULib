@@ -10,6 +10,7 @@
 
 #include <cmsis_device.h>
 #include <Misc/UMisc.h>
+#include <cstring>
 #include <functional>
 
 //#define voidFun
@@ -107,54 +108,97 @@ struct Bit32_Typedef {
 };
 
 union BytetoBit_Typedef {
+	BytetoBit_Typedef(uint8_t b) {
+		byte = b;
+	}
+	BytetoBit_Typedef() {
+	}
 	uint8_t byte;
 	Bit8_Typedef bit;
 };
 
-union WordtoBit_Typedef {
-	uint16_t word;
+union HalfWord_Typedef {
+	HalfWord_Typedef(uint16_t hW) {
+		halfWord = hW;
+	}
+	HalfWord_Typedef(uint8_t* pb) {
+		memcpy(this->byte, pb, sizeof(this));
+	}
+	HalfWord_Typedef() {
+	}
 	uint8_t byte[2];
+	uint16_t halfWord;
 	Bit16_Typedef bit;
 };
 
-union WordtoByte_Typedef {
-	WordtoByte_Typedef(uint16_t& w) {
+union HalfWordSigned_Typedef {
+	HalfWordSigned_Typedef(int16_t hW) {
+		halfWord = hW;
+	}
+	HalfWordSigned_Typedef(uint8_t* pb) {
+		memcpy(this->byte, pb, sizeof(this));
+	}
+	HalfWordSigned_Typedef() {
+	}
+	uint8_t byte[2];
+	int16_t halfWord;
+	Bit16_Typedef bit;
+};
+
+union Word_Typedef {
+	Word_Typedef(uint32_t w) {
 		word = w;
 	}
-	WordtoByte_Typedef() {
-
+	Word_Typedef(uint8_t* pb) {
+		memcpy(this->byte, pb, sizeof(this));
 	}
-	uint8_t byte[2];
-	uint16_t word;
-};
-
-union WordtoByteSigned_Typedef {
-	uint8_t byte[2];
-	int16_t word;
-};
-
-union TwoWordtoByte_Typedef {
+	Word_Typedef() {
+	}
 	uint8_t byte[4];
-	uint16_t word[2];
-	uint32_t twoWord;
-};
-
-union TwoWordtoByteSigned_Typedef {
-	uint8_t byte[4];
-	int16_t word[2];
-	int32_t twoWord;
-};
-
-union TwoWordtoBit_Typedef {
-	uint32_t twoWord;
-	uint16_t word[2];
-	uint8_t byte[4];
+	uint16_t halfWord[2];
+	uint32_t word;
 	Bit32_Typedef bit;
 };
 
-union DoubletoByte_Typedef {
+union WordSigned_Typedef {
+	WordSigned_Typedef(int32_t w) {
+		word = w;
+	}
+	WordSigned_Typedef(uint8_t* pb) {
+		memcpy(this->byte, pb, sizeof(this));
+	}
+	WordSigned_Typedef() {
+	}
+	uint8_t byte[4];
+	int16_t halfWord[2];
+	int32_t word;
+	Bit32_Typedef bit;
+};
+
+union Doubleto_Typedef {
+	Doubleto_Typedef(double d) {
+		this->d = d;
+	}
+	Doubleto_Typedef(uint8_t* pb) {
+		memcpy(this->byte, pb, sizeof(this));
+	}
+	Doubleto_Typedef() {
+	}
 	double d;
-	uint8_t byte[8];
+	uint8_t byte[sizeof(double)];
+};
+
+union Float_Typedef {
+	Float_Typedef(float f) {
+		this->f = f;
+	}
+	Float_Typedef(uint8_t* pb) {
+		memcpy(this->byte, pb, sizeof(this));
+	}
+	Float_Typedef() {
+	}
+	float f;
+	uint8_t byte[sizeof(float)];
 };
 
 enum Status_Typedef {
@@ -168,6 +212,5 @@ struct UIT_Typedef {
 };
 
 extern uint32_t CalcDMATC(DMA_Channel_TypeDef* DMAy_Channelx);
-
 
 #endif /* UMISC_H_ */
