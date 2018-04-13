@@ -108,10 +108,10 @@ struct Bit32_Typedef {
 };
 
 union Byte_Typedef {
-	BytetoBit_Typedef(uint8_t b) {
+	Byte_Typedef(uint8_t b) {
 		byte = b;
 	}
-	BytetoBit_Typedef() {
+	Byte_Typedef() {
 	}
 	uint8_t byte;
 	Bit8_Typedef bit;
