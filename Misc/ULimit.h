@@ -13,7 +13,7 @@
 
 class ULimit {
 public:
-	volatile BytetoBit_Typedef* Data;
+	volatile Byte_Typedef* Data;
 
 	ULimit(uint8_t limitNum, bool inverting = false);
 	virtual ~ULimit();

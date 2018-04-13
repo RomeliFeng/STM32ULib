@@ -9,7 +9,7 @@
 
 UValve::UValve(uint8_t valveNum, bool inverting) {
 	_dataSize = valveNum / 8 + 1;
-	_data = new BytetoBit_Typedef[_dataSize]();
+	_data = new Byte_Typedef[_dataSize]();
 	SetInverting(inverting);
 }
 

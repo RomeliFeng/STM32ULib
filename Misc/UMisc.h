@@ -107,7 +107,7 @@ struct Bit32_Typedef {
 	uint8_t bit31 :1;
 };
 
-union BytetoBit_Typedef {
+union Byte_Typedef {
 	BytetoBit_Typedef(uint8_t b) {
 		byte = b;
 	}
