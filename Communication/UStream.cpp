@@ -8,9 +8,9 @@
 #include <Communication/UStream.h>
 #include <cstring>
 
-UStream::UStream(uint16_t rxBufSize, uint16_t txBufSize, uint16_t dmaRxBufSize,
+UStream::UStream(uint16_t rxBufSize, uint16_t txBufSize, uint16_t DMARxBufSize,
         uint16_t txBuf2Size) :
-		_rxBuf(rxBufSize), _txBuf(txBuf2Size), _dmaRxBuf(dmaRxBufSize), _txBuf2(
+		_rxBuf(rxBufSize), _txBuf(txBuf2Size), _DMARxBuf(DMARxBufSize), _txBuf2(
 		        txBuf2Size) {
 
 	ReceivedEvent = nullptr;
@@ -22,7 +22,7 @@ UStream::UStream(uint16_t rxBufSize, uint16_t txBufSize, uint16_t dmaRxBufSize,
 UStream::~UStream() {
 	delete[] _rxBuf.data;
 	delete[] _txBuf.data;
-	delete[] _dmaRxBuf.data;
+	delete[] _DMARxBuf.data;
 	delete[] _txBuf2.data;
 }
 
@@ -211,6 +211,53 @@ void UStream::Discard(uint16_t num) {
 	_rxBuf.start = _rxBuf.end;
 }
 
+void UStream::IRQDMATx() {
+	//关闭DMA发送
+	_DMAy_Channelx_Tx->CCR &= (uint16_t) (~DMA_CCR1_EN);
+
+	_DMAx->IFCR = _DMAy_IT_TCx_Tx;
+
+	//判断当前使用的缓冲通道
+	if (_DMAy_Channelx_Tx->CMAR == (uint32_t) _txBuf.data) {
+		//缓冲区1发送完成，置位指针
+		_txBuf.end = 0;
+		//判断缓冲区2是否有数据，并且忙标志未置位（防止填充到一半发送出去）
+		if (_txBuf2.end != 0 && _txBuf2.busy == false) {
+			//当前使用缓冲区切换为缓冲区2，并加载DMA发送
+			DMASend(_txBuf2);
+		} else {
+			_DMAy_Channelx_Tx->CMAR = 0;
+			//无数据需要发送，清除发送队列忙标志
+			_DMATxBusy = false;
+		}
+	} else if (_DMAy_Channelx_Tx->CMAR == (uint32_t) _txBuf2.data) {
+		//缓冲区2发送完成，置位指针
+		_txBuf2.end = 0;
+		//判断缓冲区1是否有数据，并且忙标志未置位（防止填充到一半发送出去）
+		if (_txBuf.end != 0 && _txBuf.busy == false) {
+			//当前使用缓冲区切换为缓冲区1，并加载DMA发送
+			DMASend(_txBuf);
+		} else {
+			_DMAy_Channelx_Tx->CMAR = 0;
+			//无数据需要发送，清除发送队列忙标志
+			_DMATxBusy = false;
+		}
+	} else {
+		//可能是别的发送
+		if (_txBuf2.end != 0 && _txBuf2.busy == false) {
+			//当前使用缓冲区切换为缓冲区2，并加载DMA发送
+			DMASend(_txBuf2);
+		} else if (_txBuf.end != 0 && _txBuf.busy == false) {
+			//当前使用缓冲区切换为缓冲区1，并加载DMA发送
+			DMASend(_txBuf);
+		} else {
+			_DMAy_Channelx_Tx->CMAR = 0;
+			//无数据需要发送，清除发送队列忙标志
+			_DMATxBusy = false;
+		}
+	}
+}
+
 /*
  * author Romeli
  * explain 向下移动流指针
@@ -279,14 +326,12 @@ void UStream::DMASend(uint8_t *&data, uint16_t &len) {
 		}
 
 		if (txBuf != 0) {
-			uint16_t avaSize, copySize;
-
 			//置位忙标志，防止计算中DMA自动加载发送缓冲
 			txBuf->busy = true;
 			//计算缓冲区空闲空间大小
-			avaSize = uint16_t(txBuf->size - txBuf->end);
+			uint16_t avaSize = uint16_t(txBuf->size - txBuf->end);
 			//计算可以发送的字节大小
-			copySize = avaSize < len ? avaSize : len;
+			uint16_t copySize = avaSize < len ? avaSize : len;
 			//拷贝字节到缓冲区
 			memcpy(txBuf->data + txBuf->end, data, copySize);
 			//偏移发送缓冲区的末尾
@@ -296,13 +341,15 @@ void UStream::DMASend(uint8_t *&data, uint16_t &len) {
 			//长度减去已发送长度
 			len = uint16_t(len - copySize);
 
-			if (!_DMABusy) {
+			if (!_DMATxBusy) {
 				//DMA发送空闲，发送新的缓冲
-				_DMABusy = true;
+				_DMATxBusy = true;
 
 				//设置DMA地址
-				_DMAy_Channelx_Tx->CMAR = (uint32_t) txBuf->data;
+				_DMAy_Channelx_Tx->CMAR = uint32_t(txBuf->data);
 				_DMAy_Channelx_Tx->CNDTR = txBuf->end;
+				//设置内存地址自增
+				_DMAy_Channelx_Tx->CCR |= DMA_CCR1_MINC;
 
 				//使能DMA开始发送
 				_DMAy_Channelx_Tx->CCR |= DMA_CCR1_EN;
@@ -314,6 +361,14 @@ void UStream::DMASend(uint8_t *&data, uint16_t &len) {
 }
 
 void UStream::DMAReceive(uint8_t*& data, uint16_t& len) {
+}
+
+void UStream::DMASend(Buffer_Typedef& buffer) {
+	_DMAy_Channelx_Tx->CMAR = (uint32_t) buffer.data;
+	_DMAy_Channelx_Tx->CNDTR = buffer.end;
+	_DMAy_Channelx_Tx->CCR |= DMA_CCR1_MINC;
+	//使能DMA发送
+	_DMAy_Channelx_Tx->CCR |= DMA_CCR1_EN;
 }
 
 /*

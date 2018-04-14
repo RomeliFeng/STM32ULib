@@ -42,7 +42,7 @@ public:
 
 	UEvent SendedEvent, ReceivedEvent;
 
-	UStream(uint16_t rxBufSize, uint16_t txBufSize, uint16_t dmaRxBufSize,
+	UStream(uint16_t rxBufSize, uint16_t txBufSize, uint16_t DMARxBufSize,
 	        uint16_t txBuf2Size);
 	virtual ~UStream();
 
@@ -113,8 +113,10 @@ public:
 	virtual void SetSendedEventPool(UEvent sendEvent, UEventPool &pool);
 
 	void Discard(uint16_t num = 0);
+
+	virtual void IRQDMATx();
 protected:
-	Buffer_Typedef _rxBuf, _txBuf, _dmaRxBuf, _txBuf2;
+	Buffer_Typedef _rxBuf, _txBuf, _DMARxBuf, _txBuf2;
 	Periph_Typedef _periph;
 	Mode_Typedef _mode;
 	UEventPool* _receivedEventPool;
@@ -125,14 +127,17 @@ protected:
 	DMA_Channel_TypeDef* _DMAy_Channelx_Tx;
 	uint32_t _DMAy_IT_TCx_Rx, _DMAy_IT_TCx_Tx;
 
-	volatile bool _DMABusy = false;
+	volatile bool _DMATxBusy = false;
+	volatile bool _DMARxBusy = false;
 
 	Status_Typedef SpInc(Buffer_Typedef &buffer);
 	Status_Typedef SpDec(Buffer_Typedef &buffer);
-	uint16_t GetLen(uint8_t *str);
+	uint16_t GetLen(uint8_t* str);
 
-	void DMASend(uint8_t *&data, uint16_t &len);
-	void DMAReceive(uint8_t *&data, uint16_t &len);
+	virtual void DMASend(uint8_t*& data, uint16_t& len);
+	virtual void DMAReceive(uint8_t*& data, uint16_t& len);
+
+	virtual void DMASend(Buffer_Typedef& buffer);
 private:
 	Status_Typedef nextInt(int64_t* num, uint8_t ignore = 0);
 	Status_Typedef nextFloat(double* flo, uint8_t ignore = 0);
