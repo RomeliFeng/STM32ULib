@@ -224,7 +224,7 @@ void UStream::IRQDMATx() {
 		//判断缓冲区2是否有数据，并且忙标志未置位（防止填充到一半发送出去）
 		if (_txBuf2.end != 0 && _txBuf2.busy == false) {
 			//当前使用缓冲区切换为缓冲区2，并加载DMA发送
-			DMASend(_txBuf2);
+			DMASend(&_txBuf2);
 		} else {
 			_DMAy_Channelx_Tx->CMAR = 0;
 			//无数据需要发送，清除发送队列忙标志
@@ -236,7 +236,7 @@ void UStream::IRQDMATx() {
 		//判断缓冲区1是否有数据，并且忙标志未置位（防止填充到一半发送出去）
 		if (_txBuf.end != 0 && _txBuf.busy == false) {
 			//当前使用缓冲区切换为缓冲区1，并加载DMA发送
-			DMASend(_txBuf);
+			DMASend(&_txBuf);
 		} else {
 			_DMAy_Channelx_Tx->CMAR = 0;
 			//无数据需要发送，清除发送队列忙标志
@@ -246,10 +246,10 @@ void UStream::IRQDMATx() {
 		//可能是别的发送
 		if (_txBuf2.end != 0 && _txBuf2.busy == false) {
 			//当前使用缓冲区切换为缓冲区2，并加载DMA发送
-			DMASend(_txBuf2);
+			DMASend(&_txBuf2);
 		} else if (_txBuf.end != 0 && _txBuf.busy == false) {
 			//当前使用缓冲区切换为缓冲区1，并加载DMA发送
-			DMASend(_txBuf);
+			DMASend(&_txBuf);
 		} else {
 			_DMAy_Channelx_Tx->CMAR = 0;
 			//无数据需要发送，清除发送队列忙标志
@@ -344,7 +344,6 @@ void UStream::DMASend(uint8_t *&data, uint16_t &len) {
 			if (!_DMATxBusy) {
 				//DMA发送空闲，发送新的缓冲
 				_DMATxBusy = true;
-
 				DMASend(txBuf);
 			}
 			//解除忙标志
@@ -362,9 +361,9 @@ void UStream::DMAReceive(uint8_t*& data, uint16_t& len) {
  * param buffer 要发送的缓冲
  * return void
  */
-void UStream::DMASend(Buffer_Typedef& buffer) {
-	_DMAy_Channelx_Tx->CMAR = (uint32_t) buffer.data;
-	_DMAy_Channelx_Tx->CNDTR = buffer.end;
+void UStream::DMASend(Buffer_Typedef* buffer) {
+	_DMAy_Channelx_Tx->CMAR = (uint32_t) buffer->data;
+	_DMAy_Channelx_Tx->CNDTR = buffer->end;
 	_DMAy_Channelx_Tx->CCR |= DMA_CCR1_MINC;
 	//使能DMA发送
 	_DMAy_Channelx_Tx->CCR |= DMA_CCR1_EN;

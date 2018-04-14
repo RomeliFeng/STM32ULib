@@ -137,7 +137,7 @@ protected:
 	virtual void DMASend(uint8_t*& data, uint16_t& len);
 	virtual void DMAReceive(uint8_t*& data, uint16_t& len);
 
-	virtual void DMASend(Buffer_Typedef& buffer);
+	virtual void DMASend(Buffer_Typedef* buffer);
 private:
 	Status_Typedef nextInt(int64_t* num, uint8_t ignore = 0);
 	Status_Typedef nextFloat(double* flo, uint8_t ignore = 0);
