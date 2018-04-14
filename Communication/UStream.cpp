@@ -345,14 +345,7 @@ void UStream::DMASend(uint8_t *&data, uint16_t &len) {
 				//DMA发送空闲，发送新的缓冲
 				_DMATxBusy = true;
 
-				//设置DMA地址
-				_DMAy_Channelx_Tx->CMAR = uint32_t(txBuf->data);
-				_DMAy_Channelx_Tx->CNDTR = txBuf->end;
-				//设置内存地址自增
-				_DMAy_Channelx_Tx->CCR |= DMA_CCR1_MINC;
-
-				//使能DMA开始发送
-				_DMAy_Channelx_Tx->CCR |= DMA_CCR1_EN;
+				DMASend(txBuf);
 			}
 			//解除忙标志
 			txBuf->busy = false;
@@ -363,6 +356,12 @@ void UStream::DMASend(uint8_t *&data, uint16_t &len) {
 void UStream::DMAReceive(uint8_t*& data, uint16_t& len) {
 }
 
+/*
+ * author Romeli
+ * explain 设置DMA发送的源地址并开始发送
+ * param buffer 要发送的缓冲
+ * return void
+ */
 void UStream::DMASend(Buffer_Typedef& buffer) {
 	_DMAy_Channelx_Tx->CMAR = (uint32_t) buffer.data;
 	_DMAy_Channelx_Tx->CNDTR = buffer.end;
