@@ -9,9 +9,10 @@
 #define USTEAM_H_
 
 #include <cmsis_device.h>
-#include <Tool/UConvert.h>
-#include <Misc/UDebug.h>
 #include <Misc/UMisc.h>
+#include <Tool/UConvert.h>
+#include <Communication/UBuffer.h>
+#include <Misc/UDebug.h>
 #include <Event/UEventPool.h>
 
 class UStream: public UConvert {
@@ -24,30 +25,17 @@ public:
 		Periph_USART, Periph_SPI, Periph_I2C
 	};
 
-	struct Buffer_Typedef {
-		Buffer_Typedef(uint16_t size) {
-			this->size = size;
-			if (this->size != 0) {
-				this->data = new uint8_t[this->size];
-			} else {
-				this->data = nullptr;
-			}
-		}
-		uint8_t* data;
-		uint16_t size;
-		volatile uint16_t start;
-		volatile uint16_t end;
-		volatile bool busy;
-	};
+	UEvent SendedEvent = nullptr, ReceivedEvent = nullptr;
 
-	UEvent SendedEvent, ReceivedEvent;
-
-	UStream(uint16_t rxBufSize, uint16_t txBufSize, uint16_t DMARxBufSize,
-	        uint16_t txBuf2Size);
+	UStream(uint16_t rxBufSize);
+	UStream(uint16_t rxBufSize, uint16_t txBufSize, DMA_TypeDef* DMAx,
+			DMA_Channel_TypeDef* DMAy_Channelx_Rx,
+			DMA_Channel_TypeDef* DMAy_Channelx_Tx, UIT_Typedef& itDMARx,
+			UIT_Typedef& itDMATx);
 	virtual ~UStream();
 
 	virtual Status_Typedef Write(uint8_t* data, uint16_t len,
-	        bool sync = false) = 0;
+			bool sync = false) = 0;
 	virtual Status_Typedef Write(uint8_t data, bool sync = false);
 
 	Status_Typedef Print(uint8_t* str);
@@ -87,7 +75,7 @@ public:
 
 	Status_Typedef Peek(uint8_t *data);
 	Status_Typedef PeekNextDigital(uint8_t* data, uint8_t ignore,
-	        bool detectDecimal = false);
+			bool detectDecimal = false);
 
 	//使用模板实现多态接口
 	template<typename T>
@@ -106,7 +94,6 @@ public:
 	}
 
 	virtual uint16_t Available();
-	virtual bool IsEmpty(Buffer_Typedef &buffer);
 	virtual bool IsBusy();
 
 	virtual void SetReceivedEventPool(UEvent receivedEvent, UEventPool &pool);
@@ -114,30 +101,33 @@ public:
 
 	void Discard(uint16_t num = 0);
 
+	static void RCCInit(DMA_TypeDef* DMAx);
+	static uint32_t CalcTC(DMA_Channel_TypeDef* DMAy_Channelx);
+
 	virtual void IRQDMATx();
+
 protected:
-	Buffer_Typedef _rxBuf, _txBuf, _DMARxBuf, _txBuf2;
-	Periph_Typedef _periph;
-	Mode_Typedef _mode;
-	UEventPool* _receivedEventPool;
-	UEventPool* _sendedEventPool;
+	UBuffer _rxBuf, _DMARxBuf, _txBuf, _txBuf2;
 
 	DMA_TypeDef* _DMAx;
 	DMA_Channel_TypeDef* _DMAy_Channelx_Rx;
 	DMA_Channel_TypeDef* _DMAy_Channelx_Tx;
 	uint32_t _DMAy_IT_TCx_Rx, _DMAy_IT_TCx_Tx;
+	volatile bool _DMATxBusy;
+	volatile bool _DMARxBusy;
+	UIT_Typedef* _itDMARx,* _itDMATx;
 
-	volatile bool _DMATxBusy = false;
-	volatile bool _DMARxBusy = false;
-
-	Status_Typedef SpInc(Buffer_Typedef &buffer);
-	Status_Typedef SpDec(Buffer_Typedef &buffer);
-	uint16_t GetLen(uint8_t* str);
+	Periph_Typedef _periph;
+	Mode_Typedef _mode;
+	UEventPool* _receivedEventPool;
+	UEventPool* _sendedEventPool;
 
 	virtual void DMASend(uint8_t*& data, uint16_t& len);
 	virtual void DMAReceive(uint8_t*& data, uint16_t& len);
 
-	virtual void DMASend(Buffer_Typedef* buffer);
+	virtual void DMASend(UBuffer* buffer);
+
+	uint16_t GetLen(uint8_t* str);
 private:
 	Status_Typedef nextInt(int64_t* num, uint8_t ignore = 0);
 	Status_Typedef nextFloat(double* flo, uint8_t ignore = 0);
