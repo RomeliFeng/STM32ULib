@@ -27,6 +27,7 @@ public:
 	void SetInverting(bool inverting);
 protected:
 	volatile Byte_Typedef* _data;
+	uint8_t _valveNum;
 	uint8_t _dataSize;
 	bool _inverting;
 

@@ -8,7 +8,8 @@
 #include <Misc/UValve.h>
 
 UValve::UValve(uint8_t valveNum, bool inverting) {
-	_dataSize = valveNum / 8 + 1;
+	_valveNum = valveNum;
+	_dataSize = valveNum / 8 + ((valveNum % 8 != 0) ? 1 : 0);
 	_data = new Byte_Typedef[_dataSize]();
 	SetInverting(inverting);
 }
@@ -26,16 +27,18 @@ void UValve::Open() {
 }
 
 void UValve::Open(uint8_t valveNo) {
-	//求第几个字节
-	uint8_t index = valveNo >> 3;
-	//计算掩码
-	uint8_t mask = uint8_t(1) << (valveNo % 8);
-	if (_inverting) {
-		_data[index].byte &= (~mask);
-	} else {
-		_data[index].byte |= mask;
+	if (valveNo < _valveNum) {
+		//求第几个字节
+		uint8_t index = valveNo >> 3;
+		//计算掩码
+		uint8_t mask = uint8_t(1) << (valveNo % 8);
+		if (_inverting) {
+			_data[index].byte &= (~mask);
+		} else {
+			_data[index].byte |= mask;
+		}
+		Apply();
 	}
-	Apply();
 }
 
 void UValve::Close() {
@@ -47,16 +50,18 @@ void UValve::Close() {
 }
 
 void UValve::Close(uint8_t valveNo) {
-	//求第几个字节
-	uint8_t index = valveNo >> 3;
-	//计算掩码
-	uint8_t mask = uint8_t(1) << (valveNo % 8);
-	if (_inverting) {
-		_data[index].byte |= mask;
-	} else {
-		_data[index].byte &= (~mask);
+	if (valveNo < _valveNum) {
+		//求第几个字节
+		uint8_t index = valveNo >> 3;
+		//计算掩码
+		uint8_t mask = uint8_t(1) << (valveNo % 8);
+		if (_inverting) {
+			_data[index].byte |= mask;
+		} else {
+			_data[index].byte &= (~mask);
+		}
+		Apply();
 	}
-	Apply();
 }
 
 void UValve::Control(uint8_t* status) {

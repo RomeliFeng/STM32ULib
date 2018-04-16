@@ -21,12 +21,13 @@ public:
 	virtual void Init() = 0;
 
 	virtual void RefreshData() = 0;
-	bool Check(uint8_t sensorNo, bool reFresh = false);
-	bool WaittingFor(uint8_t sensorNo, uint64_t timeOut = 0);
-	bool WaittingWhile(uint8_t sensorNo, uint64_t timeOut = 0);
+	bool Check(uint8_t limitNo, bool reFresh = false);
+	bool WaittingFor(uint8_t limitNo, uint64_t timeOut = 0);
+	bool WaittingWhile(uint8_t limitNo, uint64_t timeOut = 0);
 
 	void SetInverting(bool inverting);
 protected:
+	uint8_t _limitNum;
 	uint8_t _dataSize;
 	bool _inverting;
 };
