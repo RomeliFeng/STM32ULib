@@ -42,6 +42,10 @@ inline void TIM_Disable_IT_Update(TIM_TypeDef* TIMx) {
 	TIMx->DIER &= (uint16_t) ~TIM_IT_Update;
 }
 
+inline bool TIM_GET_IT_Update(TIM_TypeDef* TIMx) {
+	return ((TIMx & TIM_IT_Update) != 0);
+}
+
 struct Bit8_Typedef {
 	uint8_t bit0 :1;
 	uint8_t bit1 :1;
