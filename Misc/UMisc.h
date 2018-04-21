@@ -43,7 +43,7 @@ inline void TIM_Disable_IT_Update(TIM_TypeDef* TIMx) {
 }
 
 inline bool TIM_Get_IT_Update(TIM_TypeDef* TIMx) {
-	return ((TIMx & TIM_IT_Update) != 0);
+	return ((TIMx->SR & TIM_IT_Update) != 0);
 }
 
 struct Bit8_Typedef {
