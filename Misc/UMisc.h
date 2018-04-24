@@ -19,27 +19,56 @@ typedef std::function<void(void)> UEvent;
 
 //these function are work for high speed setting
 inline void TIM_Enable(TIM_TypeDef* TIMx) {
-	TIMx->CR1 |= TIM_CR1_CEN;
+	TIMx->CR1 |= uint16_t(TIM_CR1_CEN);
 }
 
 inline void TIM_Disable(TIM_TypeDef* TIMx) {
-	TIMx->CR1 &= (uint16_t) (~((uint16_t) TIM_CR1_CEN));
+	TIMx->CR1 &= uint16_t(~((uint16_t) TIM_CR1_CEN));
 }
 
 inline void TIM_Clear_Update_Flag(TIM_TypeDef* TIMx) {
-	TIMx->SR = (uint16_t) ~TIM_IT_Update;
+	TIMx->SR = uint16_t(~TIM_IT_Update);
+}
+
+inline void TIM_Clear_CC1_Flag(TIM_TypeDef* TIMx) {
+	TIMx->SR = uint16_t(~TIM_IT_CC1);
+}
+
+inline void TIM_Clear_CC2_Flag(TIM_TypeDef* TIMx) {
+	TIMx->SR = uint16_t(~TIM_IT_CC2);
+}
+
+inline void TIM_Clear_CC3_Flag(TIM_TypeDef* TIMx) {
+	TIMx->SR = uint16_t(~TIM_IT_CC3);
+}
+
+inline void TIM_Clear_CC4_Flag(TIM_TypeDef* TIMx) {
+	TIMx->SR = uint16_t(~TIM_IT_CC4);
+}
+
+inline void TIM_Clear_CCx_Flag(TIM_TypeDef* TIMx) {
+	TIMx->SR = uint16_t(~(TIM_IT_CC1 | TIM_IT_CC2 | TIM_IT_CC3 | TIM_IT_CC4));
 }
 
 inline void TIM_PSC_Reload(TIM_TypeDef* TIMx) {
-	TIMx->EGR = TIM_PSCReloadMode_Immediate;
+	TIMx->EGR = uint16_t(TIM_PSCReloadMode_Immediate);
 }
 
 inline void TIM_Enable_IT_Update(TIM_TypeDef* TIMx) {
-	TIMx->DIER |= TIM_IT_Update;
+	TIMx->DIER |= uint16_t(TIM_IT_Update);
+}
+
+inline void TIM_Enable_IT_CCx(TIM_TypeDef* TIMx) {
+	TIMx->DIER |= uint16_t(TIM_IT_CC1 | TIM_IT_CC2 | TIM_IT_CC3 | TIM_IT_CC4);
 }
 
 inline void TIM_Disable_IT_Update(TIM_TypeDef* TIMx) {
-	TIMx->DIER &= (uint16_t) ~TIM_IT_Update;
+	TIMx->DIER &= uint16_t(~TIM_IT_Update);
+}
+
+inline void TIM_Disable_IT_CCx(TIM_TypeDef* TIMx) {
+	TIMx->DIER &= uint16_t(
+			~(TIM_IT_CC1 | TIM_IT_CC2 | TIM_IT_CC3 | TIM_IT_CC4));
 }
 
 inline bool TIM_Get_IT_Update(TIM_TypeDef* TIMx) {
