@@ -13,6 +13,8 @@
 #include <cstring>
 #include <functional>
 
+#define TIM_IT_CCx (TIM_IT_CC1 | TIM_IT_CC2 | TIM_IT_CC3 | TIM_IT_CC4)
+
 //#define voidFun
 //typedef void (*voidFun)();
 typedef std::function<void(void)> UEvent;
@@ -47,7 +49,7 @@ inline void TIM_Clear_CC4_Flag(TIM_TypeDef* TIMx) {
 }
 
 inline void TIM_Clear_CCx_Flag(TIM_TypeDef* TIMx) {
-	TIMx->SR = uint16_t(~(TIM_IT_CC1 | TIM_IT_CC2 | TIM_IT_CC3 | TIM_IT_CC4));
+	TIMx->SR = uint16_t(~TIM_IT_CCx);
 }
 
 inline void TIM_PSC_Reload(TIM_TypeDef* TIMx) {
@@ -59,7 +61,7 @@ inline void TIM_Enable_IT_Update(TIM_TypeDef* TIMx) {
 }
 
 inline void TIM_Enable_IT_CCx(TIM_TypeDef* TIMx) {
-	TIMx->DIER |= uint16_t(TIM_IT_CC1 | TIM_IT_CC2 | TIM_IT_CC3 | TIM_IT_CC4);
+	TIMx->DIER |= uint16_t(TIM_IT_CCx);
 }
 
 inline void TIM_Disable_IT_Update(TIM_TypeDef* TIMx) {
@@ -67,8 +69,7 @@ inline void TIM_Disable_IT_Update(TIM_TypeDef* TIMx) {
 }
 
 inline void TIM_Disable_IT_CCx(TIM_TypeDef* TIMx) {
-	TIMx->DIER &= uint16_t(
-			~(TIM_IT_CC1 | TIM_IT_CC2 | TIM_IT_CC3 | TIM_IT_CC4));
+	TIMx->DIER &= uint16_t(~TIM_IT_CCx);
 }
 
 inline bool TIM_Get_IT_Update(TIM_TypeDef* TIMx) {
