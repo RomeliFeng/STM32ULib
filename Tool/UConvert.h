@@ -25,14 +25,14 @@ public:
 	}
 
 	static uint8_t GetLen(uint32_t num, uint8_t base);
-	static uint8_t GetLen(uint8_t* str);
+	static uint16_t GetLen(uint8_t* str);
 	static inline uint8_t getLen(const char* str) {
 		return GetLen((uint8_t*) str);
 	}
 
 	static uint32_t Pow10(uint8_t power);
-	static uint8_t StrCat(uint8_t* str_to, uint8_t str_to_len,
-	        uint8_t* str_from, uint8_t str_from_len);
+	static uint16_t StrCat(uint8_t* str_to, uint16_t str_to_len,
+	        uint8_t* str_from, uint16_t str_from_len);
 private:
 	static uint8_t byNumber(int32_t num, uint8_t base, uint8_t* str);
 	static uint8_t byFloat(double flo, uint8_t ndigit, uint8_t* str);

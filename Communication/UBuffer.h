@@ -21,13 +21,6 @@ public:
 	volatile uint16_t Start;
 	volatile uint16_t End;
 	volatile bool Busy;
-
-	bool IsEmpty();
-	uint16_t Available();
-	void Discard(uint16_t num);
-
-	void SpInc();
-	void SpDec();
 };
 
 #endif /* COMMUNICATION_UBUFFER_H_ */

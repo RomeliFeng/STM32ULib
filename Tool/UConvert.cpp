@@ -31,8 +31,8 @@ uint8_t UConvert::GetLen(uint32_t num, uint8_t base) {
  * param 字符串
  * return uint8_t
  */
-uint8_t UConvert::GetLen(uint8_t* str) {
-	uint8_t len = 0;
+uint16_t UConvert::GetLen(uint8_t* str) {
+	uint16_t len = 0;
 	while (*(str + len) != '\0') {
 		++len;
 	}
@@ -61,14 +61,14 @@ uint32_t UConvert::Pow10(uint8_t power) {
  * param4 str_from_len 被拼接的字符串长度
  * return uint8_t
  */
-uint8_t UConvert::StrCat(uint8_t* str_to, uint8_t str_to_len, uint8_t* str_from,
-        uint8_t str_from_len) {
-	uint8_t i;
+uint16_t UConvert::StrCat(uint8_t* str_to, uint16_t str_to_len, uint8_t* str_from,
+		uint16_t str_from_len) {
+	uint16_t i;
 	for (i = 0; i < str_from_len; ++i) { //搬移数据
 		str_to[str_to_len + i] = str_from[i];
 	}
 	str_to[str_to_len + i] = '\0'; //在字符串末尾填'\0'
-	return (uint8_t) (str_to_len + str_from_len); //返回字符串长度
+	return (uint16_t) (str_to_len + str_from_len); //返回字符串长度
 }
 
 /*

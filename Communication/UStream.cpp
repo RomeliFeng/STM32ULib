@@ -9,20 +9,13 @@
 #include <cstring>
 
 UStream::UStream(uint16_t rxBufSize) :
-		_rxBuf(rxBufSize), _DMARxBuf(0), _txBuf(0), _txBuf2(0) {
+		_rxBuf(rxBufSize) {
+	_mode = Mode_Normal;
 
 	ReceivedEvent = nullptr;
 	SendedEvent = nullptr;
 	_receivedEventPool = nullptr;
 	_sendedEventPool = nullptr;
-}
-
-UStream::UStream(uint16_t rxBufSize, uint16_t txBufSize, DMA_TypeDef* DMAx,
-		DMA_Channel_TypeDef* DMAy_Channelx_Rx,
-		DMA_Channel_TypeDef* DMAy_Channelx_Tx, UIT_Typedef& itDMARx,
-		UIT_Typedef& itDMATx) :
-		_rxBuf(rxBufSize), _DMARxBuf(rxBufSize), _txBuf(txBufSize), _txBuf2(
-				txBufSize) {
 }
 
 UStream::~UStream() {
@@ -34,7 +27,10 @@ UStream::~UStream() {
  * return uint16_t
  */
 uint16_t UStream::Available() {
-	return _rxBuf.Available();
+	return uint16_t(
+			_rxBuf.Start <= _rxBuf.End ?
+					_rxBuf.End - _rxBuf.Start :
+					_rxBuf.Size - _rxBuf.Start + _rxBuf.End);
 }
 
 /*
@@ -44,65 +40,8 @@ uint16_t UStream::Available() {
  * param sync 是否是同步模式传输
  * return Status_Typedef
  */
-Status_Typedef UStream::Write(uint8_t data, bool sync) {
-	return Write(&data, 1);
-}
-
-/*
- * author Romeli
- * explain 通过流写字符串
- * param 字符串地址
- * return Status_Typedef
- */
-Status_Typedef UStream::Print(uint8_t* str) {
-	uint16_t len = GetLen((uint8_t *) str);
-	if (len != 0) {
-		return Write((uint8_t *) str, len);
-	} else {
-		UDebugOut("Error @Romeli 空数组");
-		return Status_Error;
-	}
-}
-
-/*
- * author Romeli
- * explain 通过流打印整形数
- * param1 num 整形数
- * param2 base 进制
- * return Status_Typedef
- */
-Status_Typedef UStream::Print(int32_t num, uint8_t base) {
-	uint8_t str[32];
-	uint16_t len = ByNumber(num, base, str);
-	return Write(str, len);
-}
-
-/*
- * author Romeli
- * explain 通过流打印浮点数
- * param1 flo 浮点数
- * param2 ndigit 小数位数
- * return Status_Typedef
- */
-Status_Typedef UStream::Print(double flo, uint8_t ndigit) {
-	uint8_t str[32];
-	uint16_t len = ByNumber(flo, ndigit, str);
-	return Write(str, len);
-}
-
-/*
- * author Romeli
- * explain 从流中读取指定数据长度
- * param data 读回数据存放数组
- * param sync 是否是同步读取
- * return Status_Typedef
- */
-Status_Typedef UStream::Read(uint8_t* data, uint16_t len, bool sync) {
-	//循环读取
-	for (uint8_t i = 0; i < len; ++i) {
-		Read(data + i);
-	}
-	return Status_Ok;
+Status_Typedef UStream::Write(uint8_t data, bool sync, UEvent callBackEvent) {
+	return Write(&data, 1, sync, callBackEvent);
 }
 
 /*
@@ -112,11 +51,9 @@ Status_Typedef UStream::Read(uint8_t* data, uint16_t len, bool sync) {
  * param sync 是否是同步读取
  * return Status_Typedef
  */
-Status_Typedef UStream::Read(uint8_t* data, bool sync) {
+Status_Typedef UStream::Read(uint8_t* data, bool sync, UEvent callBackEvent) {
 	//读取一个数
-	*data = _rxBuf.Data[_rxBuf.Start];
-	_rxBuf.SpInc();
-	return Status_Ok;
+	return Read(data, 1, sync, callBackEvent);
 }
 
 /*
@@ -185,20 +122,54 @@ void UStream::SetSendedEventPool(UEvent sendEvent, UEventPool& pool) {
 }
 
 void UStream::Discard(uint16_t num) {
-	_rxBuf.Discard(num);
+	if ((num != 0) && (num < Available())) {
+		//如果丢弃的字节小于缓冲剩余字节数，丢弃相应的字节并退出
+		_rxBuf.Start = (_rxBuf.Start + num) % _rxBuf.Size;
+	} else {
+		_rxBuf.Start = _rxBuf.End;
+	}
 }
 
 /*
  * author Romeli
- * explain 计算字符串长度
- * param str 字符串地址
- * return uint16_t
+ * explain 通过流写字符串
+ * param 字符串地址
+ * return Status_Typedef
  */
-uint16_t UStream::GetLen(uint8_t * str) {
-	uint16_t len = 0;
-	for (len = 0; *(str + len) != '\0'; ++len)
-		;
-	return len;
+Status_Typedef UStream::Print(uint8_t* str, bool sync) {
+	uint16_t len = GetLen((uint8_t *) str);
+	if (len != 0) {
+		return Write((uint8_t *) str, len, sync);
+	} else {
+		UDebugOut("Error @Romeli 空数组");
+		return Status_Error;
+	}
+}
+
+/*
+ * author Romeli
+ * explain 通过流打印整形数
+ * param1 num 整形数
+ * param2 base 进制
+ * return Status_Typedef
+ */
+Status_Typedef UStream::Print(int32_t num, uint8_t base, bool sync) {
+	uint8_t str[32];
+	uint16_t len = ByNumber(num, base, str);
+	return Write(str, len, sync);
+}
+
+/*
+ * author Romeli
+ * explain 通过流打印浮点数
+ * param1 flo 浮点数
+ * param2 ndigit 小数位数
+ * return Status_Typedef
+ */
+Status_Typedef UStream::Print(double flo, uint8_t ndigit, bool sync) {
+	uint8_t str[32];
+	uint16_t len = ByNumber(flo, ndigit, str);
+	return Write(str, len, sync);
 }
 
 /*
@@ -208,7 +179,7 @@ uint16_t UStream::GetLen(uint8_t * str) {
  * param ignore 忽略的字符
  * return Status_Typedef 是否成功
  */
-Status_Typedef UStream::nextInt(int64_t* num, uint8_t ignore) {
+Status_Typedef UStream::nextInt(int64_t& num, uint8_t ignore) {
 	bool firstChar = true;
 	bool isNeg = false;
 	uint8_t c = 0;
@@ -222,7 +193,7 @@ Status_Typedef UStream::nextInt(int64_t* num, uint8_t ignore) {
 				if (firstChar) {
 					//检测到一个'-'
 					isNeg = true;
-					_rxBuf.SpInc();
+					SpInc();
 					continue;
 				} else {
 					//'-'不是第一个数
@@ -231,19 +202,19 @@ Status_Typedef UStream::nextInt(int64_t* num, uint8_t ignore) {
 			} else if (c == '+') {
 				if (firstChar) {
 					//检测到一个'+'
-					_rxBuf.SpInc();
+					SpInc();
 					continue;
 				} else {
 					//'+'不是第一个数
 					break;
 				}
 			} else if ((c == ignore) && (ignore != 0)) {
-				_rxBuf.SpInc();
+				SpInc();
 				continue;
 			}
 			n = n * 10 + c - '0';
 			firstChar = false;
-			_rxBuf.SpInc();
+			SpInc();
 		} else {
 			break;
 		}
@@ -253,11 +224,11 @@ Status_Typedef UStream::nextInt(int64_t* num, uint8_t ignore) {
 		if (isNeg) {
 			n = -n;
 		}
-		*num = n;
+		num = n;
 		return Status_Ok;
 	} else {
 		//没有读取到数
-		*num = 0;
+		num = 0;
 		return Status_Error;
 	}
 }
@@ -269,7 +240,7 @@ Status_Typedef UStream::nextInt(int64_t* num, uint8_t ignore) {
  * param ignore 忽略的字符
  * return Status_Typedef 是否成功
  */
-Status_Typedef UStream::nextFloat(double* flo, uint8_t ignore) {
+Status_Typedef UStream::nextFloat(double& flo, uint8_t ignore) {
 	double f = 0;
 	double frac = 1.0;
 	bool isNeg = false;
@@ -284,7 +255,7 @@ Status_Typedef UStream::nextFloat(double* flo, uint8_t ignore) {
 				if (firstChar) {
 					//检测到一个'-'
 					isNeg = true;
-					_rxBuf.SpInc();
+					SpInc();
 					continue;
 				} else {
 					//'-'不是第一个数
@@ -293,21 +264,21 @@ Status_Typedef UStream::nextFloat(double* flo, uint8_t ignore) {
 			} else if (c == '+') {
 				if (firstChar) {
 					//检测到一个'+'
-					_rxBuf.SpInc();
+					SpInc();
 					continue;
 				} else {
 					//'-'不是第一个数
 					break;
 				}
 			} else if ((c == ignore) && (ignore != 0)) {
-				_rxBuf.SpInc();
+				SpInc();
 				continue;
 			} else if (c == '.') {
 				if (isFra) { //不应出现两个'-'
 					break;
 				} else {
 					if (!firstChar) {
-						_rxBuf.SpInc();
+						SpInc();
 						isFra = true;
 						continue;
 					} else {
@@ -320,7 +291,7 @@ Status_Typedef UStream::nextFloat(double* flo, uint8_t ignore) {
 				frac *= 0.1;
 			}
 			f = f * 10 + c - '0';
-			_rxBuf.SpInc();
+			SpInc();
 			firstChar = false;
 		} else {
 			break;
@@ -331,176 +302,23 @@ Status_Typedef UStream::nextFloat(double* flo, uint8_t ignore) {
 		//有读取到数
 		f = isNeg ? -f : f;
 		f = isFra ? f * frac : f;
-		*flo = f;
+		flo = f;
 		return Status_Ok;
 	} else {
 		//没有读取到数
-		*flo = 0;
+		flo = 0;
 		return Status_Error;
 	}
 }
 
-void UStream::RCCInit(DMA_TypeDef* DMAx) {
-	uint32_t rcc = 0;
-	if (DMAx == DMA1) {
-		rcc = RCC_AHBPeriph_DMA1;
-	} else if (DMAx == DMA2) {
-		rcc = RCC_AHBPeriph_DMA1;
-	} else {
-		//不存在的DMA
-		return;
-	}
-	RCC_AHBPeriphClockCmd(rcc, ENABLE);
-}
-
 /*
  * author Romeli
- * explain 根据DMA通道计算TC位
- * return uint32_t DMAy_IT_TCx
- */
-uint32_t UStream::CalcTC(DMA_Channel_TypeDef* DMAy_Channelx) {
-	uint32_t DMAy_IT_TCx = 0;
-	if (DMAy_Channelx == DMA1_Channel1) {
-		DMAy_IT_TCx = DMA1_IT_TC1;
-	} else if (DMAy_Channelx == DMA1_Channel2) {
-		DMAy_IT_TCx = DMA1_IT_TC2;
-	} else if (DMAy_Channelx == DMA1_Channel3) {
-		DMAy_IT_TCx = DMA1_IT_TC3;
-	} else if (DMAy_Channelx == DMA1_Channel4) {
-		DMAy_IT_TCx = DMA1_IT_TC4;
-	} else if (DMAy_Channelx == DMA1_Channel5) {
-		DMAy_IT_TCx = DMA1_IT_TC5;
-	} else if (DMAy_Channelx == DMA1_Channel6) {
-		DMAy_IT_TCx = DMA1_IT_TC6;
-	} else if (DMAy_Channelx == DMA1_Channel7) {
-		DMAy_IT_TCx = DMA1_IT_TC7;
-	} else if (DMAy_Channelx == DMA2_Channel1) {
-		DMAy_IT_TCx = DMA2_IT_TC1;
-	} else if (DMAy_Channelx == DMA2_Channel2) {
-		DMAy_IT_TCx = DMA2_IT_TC2;
-	} else if (DMAy_Channelx == DMA2_Channel3) {
-		DMAy_IT_TCx = DMA2_IT_TC3;
-	} else if (DMAy_Channelx == DMA2_Channel4) {
-		DMAy_IT_TCx = DMA2_IT_TC4;
-	} else if (DMAy_Channelx == DMA2_Channel5) {
-		DMAy_IT_TCx = DMA2_IT_TC5;
-	}
-	return DMAy_IT_TCx;
-}
-
-void UStream::IRQDMATx() {
-	//关闭DMA发送
-	_DMAy_Channelx_Tx->CCR &= (uint16_t) (~DMA_CCR1_EN);
-
-	_DMAx->IFCR = _DMAy_IT_TCx_Tx;
-
-	//判断当前使用的缓冲通道
-	if (_DMAy_Channelx_Tx->CMAR == (uint32_t) _txBuf.Data) {
-		//缓冲区1发送完成，置位指针
-		_txBuf.End = 0;
-		//判断缓冲区2是否有数据，并且忙标志未置位（防止填充到一半发送出去）
-		if (_txBuf2.End != 0 && _txBuf2.Busy == false) {
-			//当前使用缓冲区切换为缓冲区2，并加载DMA发送
-			DMASend(&_txBuf2);
-		} else {
-			_DMAy_Channelx_Tx->CMAR = 0;
-			//无数据需要发送，清除发送队列忙标志
-			_DMATxBusy = false;
-		}
-	} else if (_DMAy_Channelx_Tx->CMAR == (uint32_t) _txBuf2.Data) {
-		//缓冲区2发送完成，置位指针
-		_txBuf2.End = 0;
-		//判断缓冲区1是否有数据，并且忙标志未置位（防止填充到一半发送出去）
-		if (_txBuf.End != 0 && _txBuf.Busy == false) {
-			//当前使用缓冲区切换为缓冲区1，并加载DMA发送
-			DMASend(&_txBuf);
-		} else {
-			_DMAy_Channelx_Tx->CMAR = 0;
-			//无数据需要发送，清除发送队列忙标志
-			_DMATxBusy = false;
-		}
-	} else {
-		//可能是别的发送
-		if (_txBuf2.End != 0 && _txBuf2.Busy == false) {
-			//当前使用缓冲区切换为缓冲区2，并加载DMA发送
-			DMASend(&_txBuf2);
-		} else if (_txBuf.End != 0 && _txBuf.Busy == false) {
-			//当前使用缓冲区切换为缓冲区1，并加载DMA发送
-			DMASend(&_txBuf);
-		} else {
-			_DMAy_Channelx_Tx->CMAR = 0;
-			//无数据需要发送，清除发送队列忙标志
-			_DMATxBusy = false;
-		}
-	}
-}
-
-/*
- * author Romeli
- * explain 使用DMA发送数据（数据长度为使用的缓冲区的剩余空间大小）
- * param data 指向数据的指针的引用 NOTE @Romeli 这里使用的指针的引用，用于发送数据后移动指针位置
- * param len 数据长度的引用
- * param txBuf 使用的缓冲区的引用
+ * explain 向下移动流指针
  * return void
  */
-void UStream::DMASend(uint8_t *&data, uint16_t &len) {
-	UBuffer* txBuf;
-
-	while (len != 0) {
-		if ((_DMAy_Channelx_Tx->CMAR != (uint32_t) _txBuf.Data)
-				&& (_txBuf.Size - _txBuf.End != 0)) {
-			//若缓冲区1空闲，并且有空闲空间
-			txBuf = &_txBuf;
-		} else if ((_DMAy_Channelx_Tx->CMAR != (uint32_t) _txBuf2.Data)
-				&& (_txBuf2.Size - _txBuf2.End != 0)) {
-			//若缓冲区2空闲，并且有空闲空间
-			txBuf = &_txBuf2;
-		} else {
-			//发送繁忙，两个缓冲区均在使用或已满
-			//FIXME@romeli 需要添加超时返回代码
-			txBuf = 0;
-		}
-
-		if (txBuf != 0) {
-			//置位忙标志，防止计算中DMA自动加载发送缓冲
-			txBuf->Busy = true;
-			//计算缓冲区空闲空间大小
-			uint16_t avaSize = uint16_t(txBuf->Size - txBuf->End);
-			//计算可以发送的字节大小
-			uint16_t copySize = avaSize < len ? avaSize : len;
-			//拷贝字节到缓冲区
-			memcpy(txBuf->Data + txBuf->End, data, copySize);
-			//偏移发送缓冲区的末尾
-			txBuf->End = uint16_t(txBuf->End + copySize);
-			//偏移掉已发送字节
-			data += copySize;
-			//长度减去已发送长度
-			len = uint16_t(len - copySize);
-
-			if (!_DMATxBusy) {
-				//DMA发送空闲，发送新的缓冲
-				_DMATxBusy = true;
-				DMASend(txBuf);
-			}
-			//解除忙标志
-			txBuf->Busy = false;
-		}
+void UStream::SpInc() {
+	if ((_rxBuf.Size != 0) && (_rxBuf.Start != _rxBuf.End)) {
+		//缓冲区指针+1
+		_rxBuf.Start = uint16_t((_rxBuf.Start + 1) % _rxBuf.Size);
 	}
-}
-
-void UStream::DMAReceive(uint8_t*& data, uint16_t& len) {
-}
-
-/*
- * author Romeli
- * explain 设置DMA发送的源地址并开始发送
- * param buffer 要发送的缓冲
- * return void
- */
-void UStream::DMASend(UBuffer* buffer) {
-	_DMAy_Channelx_Tx->CMAR = (uint32_t) buffer->Data;
-	_DMAy_Channelx_Tx->CNDTR = buffer->End;
-	_DMAy_Channelx_Tx->CCR |= DMA_CCR1_MINC;
-	//使能DMA发送
-	_DMAy_Channelx_Tx->CCR |= DMA_CCR1_EN;
 }
