@@ -13,6 +13,13 @@ ULimit::ULimit(uint8_t limitNum, bool inverting) {
 	_dataSize = _limitNum / 8 + ((_limitNum % 8 != 0) ? 1 : 0);
 	Data = new Byte_Typedef[_dataSize]();
 	SetInverting(inverting);
+	for (uint8_t i = 0; i < _dataSize; ++i) {
+		if (_inverting) {
+			Data->byte = 0xff;
+		} else {
+			Data->byte = 0;
+		}
+	}
 }
 
 ULimit::~ULimit() {
