@@ -61,19 +61,19 @@ public:
 
 		//内循环一直保留上次的值
 		_Last2 = *_Input; //保留上次的值
-		_LastDelta2 = delta; //保留上次的一阶导数
+		_LastDelta2 = delta2; //保留上次的一阶导数
 
 		if (deltaError < _DeltaErrorLimit) {
 			//外循环变化趋势小于限定值,直接返回记录当前趋势（二阶导数）
 			_Last = *_Input;
 			_LastDelta = delta;
-		} else if (deltaError < _DeltaErrorLimit) {
+		} else if (deltaError2 < _DeltaErrorLimit) {
 			//如果内循环变化率小于限定值，累计次数进行逃脱
 			++_EscapeCount;
 			if (_EscapeCount >= _EscapeTimes) {
 				//到达指定逃脱次数，逃脱内循环
 				_Last = *_Input;
-				_LastDelta = delta;
+				_LastDelta = delta2;
 			}
 		} else {
 			//变化率依旧大于限定值，清空累计
