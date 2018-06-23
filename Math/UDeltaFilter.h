@@ -58,6 +58,7 @@ public:
 			//保持历史最大值
 			_MaxDeltaError = deltaError;
 		}
+
 		//内循环一直保留上次的值
 		_Last2 = *_Input; //保留上次的值
 		_LastDelta2 = delta; //保留上次的一阶导数
