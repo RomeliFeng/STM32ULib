@@ -49,7 +49,6 @@ public:
 	T Get() {
 		T delta = *_Input - _Last; //计算一阶导数
 		T deltaError = delta - _LastDelta; //计算二阶导数
-
 		deltaError = deltaError < 0 ? -deltaError : deltaError; //正值化
 
 		if (deltaError > _MaxDeltaError) {
@@ -65,6 +64,7 @@ public:
 			//如果当前数值无效，下一数值应脱离内循环
 			delta = *_Input - _Last2; //计算内循环一阶导数
 			deltaError = delta - _LastDelta2; //计算内循环二阶导数
+			deltaError = deltaError < 0 ? -deltaError : deltaError; //正值化
 
 			_Last2 = *_Input; //保留上次的值
 			_LastDelta2 = delta; //保留上次的一阶导数
