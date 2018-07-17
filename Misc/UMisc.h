@@ -245,6 +245,8 @@ struct UIT_Typedef {
 	uint8_t SubPriority;
 };
 
+#ifdef USERLIB_F1
 extern uint32_t CalcDMATC(DMA_Channel_TypeDef* DMAy_Channelx);
+#endif
 
 #endif /* UMISC_H_ */

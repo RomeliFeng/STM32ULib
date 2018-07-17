@@ -7,7 +7,7 @@
 
 #include <Misc/UMisc.h>
 
-
+#ifdef USERLIB_F1
 /*
  * author Romeli
  * explain 根据DMA通道计算TC位
@@ -42,3 +42,4 @@ uint32_t CalcDMATC(DMA_Channel_TypeDef* DMAy_Channelx) {
 		return 0;
 	}
 }
+#endif
