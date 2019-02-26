@@ -66,9 +66,9 @@ bool ULimit::Check(uint8_t limitNo, bool reFresh) {
  */
 bool ULimit::WaittingFor(uint8_t limitNo, uint64_t timeOut) {
 	if (limitNo < _limitNum) {
-		uint64_t last = UTick::Millis();
+		uint64_t last = uTick.Millis();
 		while (!Check(limitNo, true)) {
-			if ((timeOut != 0) && (UTick::Millis() - last >= timeOut)) {
+			if ((timeOut != 0) && (uTick.Millis() - last >= timeOut)) {
 				return false;
 			}
 		}
@@ -85,9 +85,9 @@ bool ULimit::WaittingFor(uint8_t limitNo, uint64_t timeOut) {
  */
 bool ULimit::WaittingWhile(uint8_t limitNo, uint64_t timeOut) {
 	if (limitNo < _limitNum) {
-		uint64_t last = UTick::Millis();
+		uint64_t last = uTick.Millis();
 		while (Check(limitNo, true)) {
-			if ((timeOut != 0) && (UTick::Millis() - last >= timeOut)) {
+			if ((timeOut != 0) && (uTick.Millis() - last >= timeOut)) {
 				return false;
 			}
 		}

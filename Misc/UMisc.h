@@ -18,6 +18,9 @@
 //#define voidFun
 //typedef void (*voidFun)();
 typedef std::function<void(void)> UEvent;
+typedef std::function<void(void)> UEventFun;
+typedef std::function<bool(void)> UJudgFun;
+typedef void (*UVoidFun)(void);
 
 //these function are work for high speed setting
 inline void TIM_Enable(TIM_TypeDef* TIMx) {

@@ -28,7 +28,7 @@ void UEventLoop::TryDo() {
 	EventList::iterator iter = _List.begin();
 	while (iter != _List.end()) {
 		Unit_Typedef& unit = *iter;
-		uint64_t now = UTick::Micros();
+		uint64_t now = uTick.Micros();
 		if (now - unit.LastCall >= unit.Interval) {
 			//如果事件距离上次被调用超过了间隔时间
 			unit.LastCall = now;

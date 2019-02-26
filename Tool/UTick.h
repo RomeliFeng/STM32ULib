@@ -10,27 +10,38 @@
 
 #include <cmsis_device.h>
 #include <Misc/UDebug.h>
+#include <Misc/UMisc.h>
 
 class UTick {
 public:
-	static void Init();
-	static void uWait(uint64_t us);
-	static void mWait(uint64_t ms);
-	static inline void Wait(uint64_t s) {
+	RCC_ClocksTypeDef Clock;
+
+	void Init();
+	void uWait(uint64_t us);
+	void mWait(uint64_t ms);
+	inline void Wait(uint64_t s) {
 		mWait(s * 1000);
 	}
-	static inline void Tick(uint16_t t) {
+	inline void Tick(uint16_t t) {
 		while (t--)
 			;
 	}
-	static uint64_t Millis();
-	static uint64_t Micros();
-	static void IRQ();
+	bool WaitOne(UJudgFun fun, uint32_t uTimeout, uint32_t interval = 0);
+	bool WaitMore(UJudgFun fun, UJudgFun fun2, uint16_t times,
+			uint32_t uTimeout, uint32_t interval = 0);
+	uint64_t Millis();
+	uint64_t Micros();
+	void IRQ();
 private:
-	static bool _InitFlag;
-	static volatile uint64_t _Now;
-	static uint64_t _Last;
-	static uint32_t _Interval;
+	bool _InitFlag;
+	volatile uint64_t _Now;
+	volatile uint64_t _Last;
+	uint32_t _IntervalMs;
+	uint32_t _IntervalUs;
+	uint32_t _ClockInterval;
+	uint32_t _ClockMs;
+	uint32_t _ClockUs;
 };
 
+extern UTick uTick;
 #endif /* UTICK_H_ */
