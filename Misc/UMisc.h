@@ -209,14 +209,14 @@ union WordSigned_Typedef {
 	Bit32_Typedef bit;
 };
 
-union Doubleto_Typedef {
-	Doubleto_Typedef(double d) {
+union Double_Typedef {
+	Double_Typedef(double d) {
 		this->d = d;
 	}
-	Doubleto_Typedef(uint8_t* pb) {
+	Double_Typedef(uint8_t* pb) {
 		memcpy(this->byte, pb, sizeof(this));
 	}
-	Doubleto_Typedef() {
+	Double_Typedef() {
 	}
 	double d;
 	uint8_t byte[sizeof(double)];

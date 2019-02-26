@@ -14,32 +14,32 @@ template<typename T>
 class UWindowFilter {
 public:
 	UWindowFilter(uint8_t size) {
-		_Size = size;
-		_Sp = 0;
-		Buffer = new T[size]();
+		_size = size;
+		_sp = 0;
+		_buffer = new T[size]();
 	}
 	~UWindowFilter() {
-		delete[] Buffer;
+		delete[] _buffer;
 	}
 
 	T Get(T input) {
 		//建立临时变量用于存储和
 		T sum = 0;
 		//将当前数据移入缓冲
-		Buffer[_Sp++] = input;
+		_buffer[_sp++] = input;
 		//移动缓冲指针
-		_Sp %= _Size;
+		_sp %= _size;
 		//累计求和
-		for (uint8_t i = 0; i < _Size; ++i) {
-			sum += Buffer[i];
+		for (uint8_t i = 0; i < _size; ++i) {
+			sum += _buffer[i];
 		}
 		//返回平均数
-		return sum / _Size;
+		return sum / _size;
 	}
 private:
-	T *Buffer;
-	uint8_t _Size;
-	uint8_t _Sp;
+	T *_buffer;
+	uint8_t _size;
+	uint8_t _sp;
 };
 
 #endif /* MATH_UWINDOWFILTER_H_ */
